@@ -7,3 +7,7 @@
 # funcionar noutra máquina sem depender de ~/.agents/skills.
 .claude/worktrees/
 .claude/settings.local.json
+
+# node
+node_modules/
+package-lock.json
