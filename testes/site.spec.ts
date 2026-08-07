@@ -397,3 +397,58 @@ test.describe("painel no telemóvel", () => {
     expect(corte.visivel, `selo truncado: "${corte.texto}"`).toBe(true);
   });
 });
+
+/* ── Escala no telemóvel ─────────────────────────────────────────────────────
+   A página inicial tinha 11 601px — 13,6 ecrãs — porque cada fotografia
+   ocupava 467px numa coluna só. Estes limites impedem que volte a inchar.
+   ------------------------------------------------------------------------ */
+
+test.describe("escala no telemóvel", () => {
+  test.use({ viewport: { width: 393, height: 852 } });
+
+  test("a página inicial não é um scroll interminável", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(600);
+
+    const altura = await page.evaluate(() => document.documentElement.scrollHeight);
+    const ecras = altura / 852;
+    expect(altura, `${ecras.toFixed(1)} ecrãs de scroll`).toBeLessThan(10_500);
+  });
+
+  test("as fotografias não dominam o ecrã", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(800);
+
+    const grandes = await page.evaluate(() => {
+      const fora: string[] = [];
+      document.querySelectorAll("#equipa article > div, figure").forEach((el) => {
+        const h = el.getBoundingClientRect().height;
+        if (h > 320) fora.push(`${el.tagName} ${Math.round(h)}px`);
+      });
+      return fora;
+    });
+    expect(grandes, "fotografias altas demais").toEqual([]);
+  });
+
+  test("todos os botões respeitam o alvo de toque", async ({ page }) => {
+    for (const caminho of ["/", "/marcar"]) {
+      await page.goto(caminho);
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(600);
+
+      const pequenos = await page.evaluate(() => {
+        const fora: string[] = [];
+        document.querySelectorAll("a.MuiButton-root, button.MuiButton-root").forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.height > 0 && r.height < 44) {
+            fora.push(`"${el.textContent?.trim().slice(0, 16)}" ${Math.round(r.height)}px`);
+          }
+        });
+        return fora;
+      });
+      expect(pequenos, `botões abaixo de 44px em ${caminho}`).toEqual([]);
+    }
+  });
+});

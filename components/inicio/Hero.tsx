@@ -56,7 +56,7 @@ export default function Hero() {
         </Box>
 
         <Typography variant="h1" sx={{
-          fontSize: "clamp(3.4rem, 13vw, 10rem)", lineHeight: 0.86, mb: 3,
+          fontSize: "clamp(2.8rem, 11.5vw, 10rem)", lineHeight: 0.88, mb: { xs: 2.5, md: 3 },
           textShadow: "0 2px 24px rgba(6,21,15,0.55)"
         }}>
           <Box component="span" sx={{ display: "block" }}>Barbearia</Box>

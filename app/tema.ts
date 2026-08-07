@@ -80,7 +80,10 @@ const tema = createTheme({
           "&:active": { transform: "translateY(0)" },
           transition: "background 200ms, color 200ms, border-color 200ms, transform 200ms"
         },
-        sizeSmall: { padding: "0.5rem 1.15rem", fontSize: 13 }
+        // 44px é o alvo de toque mínimo recomendado: os pequenos não descem daí
+        sizeSmall: { padding: "0.6rem 1.15rem", fontSize: 13, minHeight: 44 },
+        // O `large` do MUI subia a letra para 17px e inflava o botão até 57px
+        sizeLarge: { padding: "0.85rem 1.8rem", fontSize: 15 }
       },
       // Desactivado tem de continuar a ler-se: 5.0:1, não uma opacidade cega
       variants: [

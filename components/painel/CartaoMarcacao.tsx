@@ -32,7 +32,7 @@ export default function CartaoMarcacao({ m, aoMudarEstado, aoAnular }: {
       data-testid="marcacao"
       data-estado={m.estado}
       sx={{
-        p: { xs: 1.8, md: 2.2 }, borderRadius: "14px", borderLeft: `4px solid ${cor}`,
+        p: { xs: 1.4, md: 2.2 }, borderRadius: "14px", borderLeft: `4px solid ${cor}`,
         opacity: m.estado === "agendada" ? 1 : 0.72,
         display: "grid",
         gridTemplateColumns: { xs: "5.6rem 1fr", md: "6rem 1fr auto" },
@@ -54,7 +54,7 @@ export default function CartaoMarcacao({ m, aoMudarEstado, aoAnular }: {
             senão "Agendada" fica "Agend…". */}
         <Chip label={M.ESTADOS[m.estado].rotulo} size="small" data-selo
           sx={{
-            mt: 0.8, bgcolor: `${cor}22`, color: cor, fontWeight: 700, height: 22,
+            mt: 0.6, bgcolor: `${cor}22`, color: cor, fontWeight: 700, height: 22,
             maxWidth: "100%",
             "& .MuiChip-label": { px: 0.9, overflow: "visible", textOverflow: "clip" }
           }} />
@@ -86,7 +86,7 @@ export default function CartaoMarcacao({ m, aoMudarEstado, aoAnular }: {
             {m.notas}
           </Typography>
         )}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mt: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mt: 0.7 }}>
           {b && (
             <Box sx={{ position: "relative", width: 22, height: 22, borderRadius: "50%", overflow: "hidden" }}>
               <Image src={b.foto} alt="" fill sizes="22px" style={{ objectFit: "cover" }} />

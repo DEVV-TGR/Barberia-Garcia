@@ -93,7 +93,7 @@ export default function Carta() {
   const grupos = [...new Set(SERVICOS.map((s) => s.grupo))];
 
   return (
-    <Box component="section" id="servicos" sx={{ py: { xs: 8, md: 12 }, bgcolor: "background.paper" }}>
+    <Box component="section" id="servicos" sx={{ py: { xs: 6, md: 12 }, bgcolor: "background.paper" }}>
       <Envolve>
         <Sobrescrita>A Carta</Sobrescrita>
         <TituloSeccao destaque="& preços">Serviços</TituloSeccao>
