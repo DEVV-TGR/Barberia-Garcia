@@ -392,11 +392,13 @@
 .barra-accao__atras[hidden] { display: none; }
 
 .barra-accao__resumo { flex: 1; min-width: 0; line-height: 1.35; }
+/* O serviço escolhido é o que a barra tem para dizer: fica em destaque. */
 .barra-accao__resumo strong {
   display: block;
   font-family: var(--titulo);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 1rem;
+  color: var(--acento);
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -410,7 +412,7 @@
   text-overflow: ellipsis;
   display: block;
 }
-.barra-accao__resumo em { font-style: normal; color: var(--acento); font-weight: 600; }
+.barra-accao__resumo em { font-style: normal; color: var(--texto); font-weight: 600; }
 
 .barra-accao .botao { flex: none; }
 
