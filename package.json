@@ -1,0 +1,11 @@
+{
+  "name": "barbearia-garcia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site de demonstração da Barbearia Garcia & Tatuagem, com marcações funcionais",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node testes/marcacoes.test.mjs",
+    "test:e2e": "node testes/e2e.mjs"
+  }
+}
