@@ -89,7 +89,13 @@ const tema = createTheme({
       variants: [
         {
           props: { variant: "contained" as const },
-          style: { "&.Mui-disabled": { background: cores.fundo3, color: cores.texto2 } }
+          style: {
+            // Sem esta borda invisível, um preenchido ao lado de um de
+            // contorno fica 4px mais baixo — a borda do outro conta na caixa.
+            borderStyle: "solid",
+            borderColor: "transparent",
+            "&.Mui-disabled": { background: cores.fundo3, color: cores.texto2 }
+          }
         },
         {
           props: { variant: "outlined" as const },

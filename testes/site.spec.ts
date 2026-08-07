@@ -316,15 +316,18 @@ test.describe("layout no telemóvel", () => {
 
   test("o cabeçalho é opaco quando rolado", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
     await page.evaluate(() => window.scrollTo(0, 900));
-    await page.waitForTimeout(600);
 
-    const fundo = await page.locator(".MuiAppBar-root")
-      .evaluate((e) => getComputedStyle(e).backgroundColor);
-
-    // Sem canal alfa, ou com alfa 1: nada do que está por baixo se lê através
-    const alfa = fundo.startsWith("rgba") ? parseFloat(fundo.split(",")[3]) : 1;
-    expect(alfa, `cabeçalho translúcido (${fundo})`).toBe(1);
+    // Esperar pelo estado, não por um relógio: a transição do fundo demora
+    // 420ms e com os testes em paralelo um `waitForTimeout` fixo falha.
+    await expect.poll(async () =>
+      page.locator(".MuiAppBar-root").evaluate((e) => {
+        const fundo = getComputedStyle(e).backgroundColor;
+        return fundo.startsWith("rgba") ? parseFloat(fundo.split(",")[3]) : 1;
+      }),
+      { message: "o cabeçalho continua translúcido", timeout: 5000 }
+    ).toBe(1);
   });
 
   test("saltar para uma âncora não esconde o título", async ({ page }) => {
@@ -451,4 +454,44 @@ test.describe("escala no telemóvel", () => {
       expect(pequenos, `botões abaixo de 44px em ${caminho}`).toEqual([]);
     }
   });
+});
+
+
+test.describe("botões do hero", () => {
+  for (const [nome, largura, altura] of [["telemóvel", 393, 852], ["desktop", 1440, 900]] as const) {
+    test(`ficam alinhados em ${nome}`, async ({ page }) => {
+      await page.setViewportSize({ width: largura, height: altura });
+      await page.goto("/");
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(600);
+
+      const botoes = await page.evaluate(() => {
+        const hero = document.querySelector("section")!;
+        return [...hero.querySelectorAll("a.MuiButton-root")].map((e) => {
+          const c = getComputedStyle(e);
+          const r = e.getBoundingClientRect();
+          return {
+            alto: +r.height.toFixed(1),
+            topo: Math.round(r.top),
+            variante: e.className.includes("outlined") ? "contorno" : "cheio",
+            corBorda: c.borderColor
+          };
+        });
+      });
+
+      expect(botoes).toHaveLength(2);
+      // A borda de 2px do botão de contorno deixava-o 4px mais alto que o cheio
+      expect(botoes[0].alto, "alturas diferentes").toBe(botoes[1].alto);
+      expect(botoes[0].topo, "não estão na mesma linha").toBe(botoes[1].topo);
+      expect(botoes[0].alto, "abaixo do alvo de toque").toBeGreaterThanOrEqual(44);
+      // Em meio ecrã o texto longo quebrava e inchava o botão até 77px
+      expect(botoes[0].alto, "inchado por quebra de texto").toBeLessThan(62);
+
+      // Ao igualar as alturas com uma borda transparente no `root`, o contorno
+      // do segundo botão desapareceu e ele ficou a parecer texto solto.
+      const contorno = botoes.find((b) => b.variante === "contorno")!;
+      expect(contorno.corBorda, "botão de contorno sem contorno")
+        .not.toMatch(/rgba?\([^)]*,\s*0\)$/);
+    });
+  }
 });

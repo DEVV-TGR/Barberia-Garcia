@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Box from "@mui/material/Box";
 import BotaoLink from "../BotaoLink";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Envolve from "../Envolve";
 import { CASA } from "@/lib/dados";
@@ -71,14 +70,36 @@ export default function Hero() {
           quente — do jeito que sempre se fez.
         </Typography>
 
-        <Stack direction="row" spacing={1.5} sx={{ flexWrap: "wrap", gap: 1.5 }}>
+        {/* Em ecrã estreito os dois não cabiam lado a lado (423px em 393px):
+            quebravam de linha e ficavam com larguras diferentes. Aqui dividem
+            a largura em partes iguais. */}
+        <Box sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr 1fr", sm: "auto auto" },
+          justifyContent: { sm: "start" },
+          gap: 1.2,
+          maxWidth: { sm: "none" },
+          "& .MuiButton-root": {
+            px: { xs: 1.2, sm: 3.6 },
+            py: { xs: 1.1, sm: 1.7 },
+            fontSize: { xs: 13, sm: 15 },
+            whiteSpace: "nowrap"
+          }
+        }}>
           <BotaoLink href="/marcar" variant="contained" size="large">
-            Marcar a minha vez
+            {/* "Marcar a minha vez" não cabe numa linha em meio ecrã e fazia o
+                botão crescer para 77px de altura. */}
+            <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+              Marcar a minha vez
+            </Box>
+            <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+              Marcar vez
+            </Box>
           </BotaoLink>
           <BotaoLink href="#servicos" variant="outlined" size="large">
             Ver a carta
           </BotaoLink>
-        </Stack>
+        </Box>
 
         {/* Em telemóvel, grelha 2×2: com flex-wrap os quatro factos partiam
             3 + 1 e o último ficava sozinho numa linha. */}
