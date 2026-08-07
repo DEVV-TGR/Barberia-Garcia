@@ -51,11 +51,23 @@ function pintarOpcoesServico() {
     destaques.length ? `
       <h3 class="grupo-titulo">Os mais pedidos</h3>
       <div class="atalhos">${destaques.map(atalhoServico).join("")}</div>` : "",
-    ...grupos.map((g) => `
-      <h3 class="grupo-titulo">${escapar(g)}</h3>
-      <div class="opcoes">
-        ${SERVICOS.filter((s) => s.grupo === g).map((s) => cartaoServico(s)).join("")}
-      </div>`)
+    // Cada grupo abre e fecha: com 18 serviços na barbearia, quem procura a
+    // tatuagem tinha de percorrer a lista toda.
+    ...grupos.map((g) => {
+      const doGrupo = SERVICOS.filter((s) => s.grupo === g);
+      return `
+      <details class="grupo" open>
+        <summary class="grupo-titulo">
+          <span>${escapar(g)}</span>
+          <span class="grupo__conta">${doGrupo.length}</span>
+          <svg class="grupo__seta" viewBox="0 0 24 24" width="16" height="16" fill="none"
+               stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="opcoes">${doGrupo.map((s) => cartaoServico(s)).join("")}</div>
+      </details>`;
+    })
   ].join("");
 
   $$('#opcoes-servico input[name="servico"]').forEach((i) =>
@@ -319,7 +331,6 @@ function confirmar() {
 
   $("#texto-confirmacao").innerHTML =
     `${escapar(m.nome.split(" ")[0])}, esperamos por si ${escapar(M.dataPorExtenso(m.data))} às ${M.paraHoras(m.inicio)}, com ${escapar(M.nomeBarbeiro(m.barbeiroId))}.`;
-  $("#codigo-reserva").textContent = m.codigo;
   pintarResumo("#resumo-final", m);
   $("#google-agenda").href = M.ligacaoGoogleAgenda(m, M.servicoPorId(m.servicoId));
 
@@ -364,15 +375,15 @@ function pintarMinhas() {
       <div>
         <p class="reserva__quando">${escapar(M.dataPorExtenso(m.data))} · ${M.paraHoras(m.inicio)}</p>
         <p class="reserva__que">${escapar(s ? s.nome : "—")} · ${escapar(M.nomeBarbeiro(m.barbeiroId))} · ${euros(m.preco)}</p>
-        <p class="reserva__cod">${escapar(m.codigo)}${passada ? " · já passou" : ""}</p>
+        ${passada ? '<p class="reserva__cod">Já passou</p>' : ""}
       </div>
       ${passada ? "" : `<button type="button" class="anular" data-anular="${m.id}">Anular</button>`}
     </li>`;
   }).join("")}</ul>`;
 
   $$("[data-anular]").forEach((b) => b.addEventListener("click", () => {
-    const cod = b.closest(".reserva").querySelector(".reserva__cod").textContent.trim();
-    if (!confirm(`Anular a marcação ${cod}?`)) return;
+    const quando = b.closest(".reserva").querySelector(".reserva__quando").textContent.trim();
+    if (!confirm(`Anular a marcação de ${quando}?`)) return;
     M.anularMarcacao(b.dataset.anular);
     pintarMinhas();
     if (estado.passo === 3) { pintarCalendario(); pintarHoras(); }
@@ -429,7 +440,8 @@ function iniciar() {
   $("#guardar-ics").addEventListener("click", () => {
     if (!estado.ultima) return;
     const s = M.servicoPorId(estado.ultima.servicoId);
-    descarregar(`barbearia-garcia-${estado.ultima.codigo}.ics`, M.paraICS(estado.ultima, s));
+    descarregar(`barbearia-garcia-${estado.ultima.data}-${M.paraHoras(estado.ultima.inicio).replace(":", "h")}.ics`,
+      M.paraICS(estado.ultima, s));
   });
 
   $("#assistente").addEventListener("submit", (e) => { e.preventDefault(); avancar(); });

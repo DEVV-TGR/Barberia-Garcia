@@ -45,7 +45,8 @@ console.log("\n── Conflitos de barbeiro ──");
 const r1 = M.criarMarcacao({ servicoId: corte.id, barbeiroId: "ary", data: KSEG, inicio: 660,
   nome: "Cliente Um", telemovel: "912345678", notas: "" });
 ok(r1.marcacao && !r1.erro, "primeira marcação às 11:00 com o Ary é aceite");
-ok(/^BG-[A-Z2-9]{4}$/.test(r1.marcacao.codigo), `código no formato BG-XXXX (${r1.marcacao.codigo})`);
+ok(typeof r1.marcacao.id === "string" && r1.marcacao.id.length > 5, "recebe identificador próprio");
+ok(!("codigo" in r1.marcacao), "já não existe código de reserva");
 
 ok(!M.estaLivre(KSEG, 660, 30, "ary"), "Ary já não está livre às 11:00");
 ok(M.estaLivre(KSEG, 660, 30, "jonatas"), "Jónatas continua livre às 11:00");
@@ -146,6 +147,7 @@ ok(/^DTSTART:\d{8}T\d{6}Z$/m.test(ics), "DTSTART em UTC");
 ok(/^DTEND:\d{8}T\d{6}Z$/m.test(ics), "DTEND em UTC");
 ok(ics.includes("SUMMARY:Madeixas"), "SUMMARY tem o serviço");
 ok(ics.includes("BEGIN:VALARM"), "inclui lembrete");
+ok(!/Código:/.test(ics), "o ICS não menciona código de reserva");
 
 // Duração: 615 -> 615+165 = 780. Confirmar diferença de 165 min no ICS.
 const gd = (t) => { const m = ics.match(new RegExp("^"+t+":(\\d{4})(\\d{2})(\\d{2})T(\\d{2})(\\d{2})", "m"));

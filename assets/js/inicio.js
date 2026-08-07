@@ -14,7 +14,15 @@ const POR_EXTENSO = {
 function pintarServicos() {
   const grupos = [...new Set(SERVICOS.map((s) => s.grupo))];
   $("#lista-servicos").innerHTML = grupos.map((g) => `
-    <h3 class="grupo-titulo">${escapar(g)}</h3>
+    <details class="grupo" open>
+      <summary class="grupo-titulo">
+        <span>${escapar(g)}</span>
+        <span class="grupo__conta">${SERVICOS.filter((s) => s.grupo === g).length}</span>
+        <svg class="grupo__seta" viewBox="0 0 24 24" width="16" height="16" fill="none"
+             stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </summary>
     <ul class="lista-servicos">
       ${SERVICOS.filter((s) => s.grupo === g).map((s) => `
         <li class="servico">
@@ -24,7 +32,8 @@ function pintarServicos() {
           <a class="botao botao--pequeno" href="marcar.html?servico=${encodeURIComponent(s.id)}"
              aria-label="Marcar ${escapar(s.nome)}">Marcar</a>
         </li>`).join("")}
-    </ul>`).join("");
+    </ul>
+    </details>`).join("");
 }
 
 function pintarEquipa() {
@@ -44,7 +53,10 @@ function pintarEquipa() {
 
 function pintarGaleria() {
   $("#grelha-galeria").innerHTML = GALERIA.map((g) => `
-    <figure><img src="${g.src}" alt="${escapar(g.alt)}" loading="lazy"></figure>`).join("");
+    <figure>
+      <img src="${g.src}" alt="${escapar(g.alt)}" loading="lazy">
+      <figcaption>${escapar(g.alt)}</figcaption>
+    </figure>`).join("");
 }
 
 function pintarHorario() {

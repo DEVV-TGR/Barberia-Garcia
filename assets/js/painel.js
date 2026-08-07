@@ -96,7 +96,7 @@ function pintarDia() {
         <p class="marcacao__linha">
           ${escapar(s ? s.nome : "—")} · ${duracao(m.minutos)} · ${euros(m.preco)}
         </p>
-        ${m.telemovel ? `<p class="marcacao__linha"><a href="tel:${escapar(m.telemovel)}">${escapar(m.telemovel)}</a> · ${escapar(m.codigo)}</p>` : ""}
+        ${m.telemovel ? `<p class="marcacao__linha"><a href="tel:${escapar(m.telemovel)}">${escapar(m.telemovel)}</a></p>` : ""}
         ${m.notas ? `<p class="marcacao__notas">${escapar(m.notas)}</p>` : ""}
         <p class="marcacao__barbeiro">
           ${b ? `<img src="${b.foto}" alt="" loading="lazy">` : ""}${escapar(M.nomeBarbeiro(m.barbeiroId))}
