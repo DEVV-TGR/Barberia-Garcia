@@ -199,6 +199,66 @@ for (const f of filtros) {
 const colunas = await p.locator(".galeria__grelha").evaluate(e => getComputedStyle(e).columnCount);
 ok(colunas === "3", `galeria em mosaico de ${colunas} colunas`);
 
+
+console.log("\n── Menu em cartão (telemóvel) ──");
+await p.setViewportSize({ width: 390, height: 844 });
+await p.goto(`${base}/index.html`, { waitUntil: "networkidle" });
+await p.waitForTimeout(900);
+const menu = p.locator("#menu"), botao = p.locator("#abre-menu"), veu = p.locator(".menu-veu");
+ok(await menu.isHidden(), "cartão escondido de início");
+ok(await veu.count() === 1, "véu criado");
+ok(await veu.isHidden(), "véu escondido de início");
+
+await botao.click(); await p.waitForTimeout(450);
+ok(await menu.isVisible(), "cartão abre");
+ok(await veu.isVisible(), "véu aparece");
+
+const est = await menu.evaluate(e => { const c=getComputedStyle(e), r=e.getBoundingClientRect();
+  return { bg:c.backgroundColor, pos:c.position, sombra:c.boxShadow,
+           raio:c.borderRadius, cx:+(r.left+r.width/2).toFixed(0), cy:+(r.top+r.height/2).toFixed(0),
+           w:+r.width.toFixed(0) }; });
+ok(est.bg === "rgb(242, 183, 5)", `cartão amarelo (${est.bg})`);
+ok(est.pos === "fixed", "fixo ao ecrã");
+ok(est.sombra !== "none" && est.sombra.length > 10, "tem sombra");
+ok(parseFloat(est.raio) > 15, `cantos arredondados (${est.raio})`);
+ok(Math.abs(est.cx - 195) <= 3, `centrado na horizontal (centro em ${est.cx}, ecrã 390)`);
+ok(Math.abs(est.cy - 422) <= 12, `centrado na vertical (centro em ${est.cy}, ecrã 844)`);
+ok(est.w < 390, `não ocupa o ecrã todo (${est.w}px de 390)`);
+
+const corLink = await p.locator("#menu a:not(.botao)").first().evaluate(e => getComputedStyle(e).color);
+ok(corLink === "rgb(13, 42, 31)", `links em verde escuro sobre amarelo (${corLink})`);
+ok(await p.locator("#menu a").count() === 5, "cinco entradas no cartão");
+const focado = await p.evaluate(() => document.activeElement.textContent.trim());
+ok(focado.length > 0, `foco entra no cartão ("${focado}")`);
+ok(await p.evaluate(() => getComputedStyle(document.body).overflow) === "hidden", "página não rola por trás");
+await p.screenshot({ path: "/tmp/bg-menu.png" });
+
+// Fechar clicando no véu
+await veu.click({ position: { x: 195, y: 60 } }); await p.waitForTimeout(450);   // zona do cabeçalho
+ok(await menu.isHidden(), "fecha ao clicar fora");
+ok(await p.evaluate(() => getComputedStyle(document.body).overflow) !== "hidden", "scroll restaurado");
+
+// Escape
+await botao.click(); await p.waitForTimeout(400);
+await p.keyboard.press("Escape"); await p.waitForTimeout(400);
+ok(await menu.isHidden(), "Escape fecha");
+ok(await p.evaluate(() => document.activeElement.id) === "abre-menu", "foco volta ao botão");
+
+// Foco preso
+await botao.click(); await p.waitForTimeout(400);
+for (let i=0;i<7;i++) await p.keyboard.press("Tab");
+const dentro = await p.evaluate(() => !!document.activeElement.closest("#menu"));
+ok(dentro, "o tabulador não sai do cartão");
+await p.keyboard.press("Escape"); await p.waitForTimeout(300);
+
+// Navegar fecha
+await botao.click(); await p.waitForTimeout(400);
+await p.locator('#menu a[href="marcar.html"]').click();
+await p.waitForLoadState("networkidle"); await p.waitForTimeout(600);
+ok(p.url().includes("marcar.html"), "navega a partir do cartão");
+ok(await p.locator("#menu").isHidden(), "cartão fechado na página nova");
+await p.setViewportSize({ width: 1440, height: 950 });
+
 console.log("\n── Texto invisível (cor igual ao fundo) ──");
 for (const pag of ["index", "marcar", "painel"]) {
   await p.setViewportSize({ width: 1440, height: 950 });

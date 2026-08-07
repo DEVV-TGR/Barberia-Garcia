@@ -16,8 +16,9 @@
 .hero__fundo img {
   width: 100%; height: 100%;
   object-fit: cover;
-  /* A cor da casa fica: só se baixa o brilho para o título se ler por cima */
-  filter: brightness(0.62) saturate(1.05);
+  /* A foto tem de se ver: o escurecimento fica no véu por cima, concentrado
+     onde assenta o texto, em vez de apagar a imagem toda. */
+  filter: brightness(0.92) saturate(1.08);
   animation: deriva 36s ease-in-out infinite alternate;
 }
 @keyframes deriva {
@@ -29,8 +30,11 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 25% 45%, rgba(13, 42, 31, 0.35) 6%, rgba(13, 42, 31, 0.86) 78%),
-    linear-gradient(180deg, rgba(13,42,31,0.9) 0%, rgba(13,42,31,0.42) 36%, var(--fundo) 97%);
+    /* Cunha escura à esquerda, onde está o título; a direita fica limpa */
+    linear-gradient(100deg, rgba(9, 30, 22, 0.92) 0%, rgba(9, 30, 22, 0.72) 34%,
+                    rgba(9, 30, 22, 0.22) 62%, rgba(9, 30, 22, 0.08) 100%),
+    linear-gradient(180deg, rgba(13,42,31,0.72) 0%, rgba(13,42,31,0.1) 26%,
+                    rgba(13,42,31,0.55) 82%, var(--fundo) 99%);
 }
 
 .etiqueta {
@@ -54,13 +58,15 @@
   line-height: 0.86;
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
+  text-shadow: 0 2px 24px rgba(6, 21, 15, 0.55);
 }
 .hero h1 span { display: block; }
 .hero__acento { color: var(--acento); }
 
 .hero__lema {
   font-size: clamp(1.02rem, 2vw, 1.2rem);
-  color: var(--texto-2);
+  color: var(--texto);
+  text-shadow: 0 1px 14px rgba(6, 21, 15, 0.7);
   max-width: 42ch;
   margin-bottom: 2.4rem;
 }

@@ -348,25 +348,96 @@ a { color: inherit; }
 @media (max-width: 900px) {
   .rodape__grelha { grid-template-columns: 1fr; gap: 2rem; }
 
+  /* Menu em cartão: um painel amarelo ao centro do ecrã, em vez da gaveta
+     lateral. Sobre amarelo, tudo o que é texto passa a verde escuro. */
   .menu {
     position: fixed;
-    inset: 0 0 0 auto;
-    width: min(80vw, 20rem);
+    top: 50%;
+    left: 50%;
+    width: min(88vw, 22rem);
     flex-direction: column;
     justify-content: center;
-    gap: 1rem;
-    background: var(--fundo-2);
-    border-left: 1px solid var(--fundo-3);
-    transform: translateX(100%);
+    gap: 0.35rem;
+    background: var(--acento);
+    border-radius: calc(var(--raio-cartao) * 1.8);
+    box-shadow: 0 32px 70px -18px rgba(0, 0, 0, 0.7),
+                0 0 0 1px rgba(13, 42, 31, 0.12);
+    padding: 1.6rem 1.4rem;
+    z-index: 96;
+    transform: translate(-50%, -48%) scale(0.94);
+    opacity: 0;
     visibility: hidden;
-    transition: transform var(--transicao), visibility var(--transicao);
-    z-index: 90;
-    padding: 2rem;
+    transition: transform var(--transicao), opacity var(--transicao),
+                visibility var(--transicao);
   }
-  .menu.aberto { transform: none; visibility: visible; }
-  .menu a:not(.botao) { font-size: 1rem; width: 100%; text-align: center; }
-  .menu .botao { margin-left: 0; width: 100%; }
-  .abre-menu { display: block; z-index: 95; }
+  .menu.aberto {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .menu a:not(.botao) {
+    font-size: 1.02rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    width: 100%;
+    text-align: center;
+    color: var(--fundo);
+    padding: 0.85rem 1rem;
+    border-radius: var(--raio-pill);
+  }
+  .menu a:not(.botao):hover,
+  .menu a:not(.botao):focus-visible {
+    color: var(--fundo);
+    background: rgba(13, 42, 31, 0.1);
+  }
+  .menu a:not(.botao)[aria-current="page"] {
+    color: var(--fundo);
+    background: rgba(13, 42, 31, 0.14);
+  }
+  .menu a:not(.botao):focus-visible { outline-color: var(--fundo); }
+
+  /* Separador antes do botão de marcar */
+  .menu .botao {
+    margin: 0.7rem 0 0;
+    width: 100%;
+    background: var(--fundo);
+    border-color: var(--fundo);
+    color: var(--acento);
+    padding: 1rem 1.5rem;
+  }
+  .menu .botao:hover, .menu .botao:focus-visible {
+    background: var(--fundo-3);
+    border-color: var(--fundo-3);
+    color: var(--acento-2);
+  }
+
+  /* Véu por trás do cartão */
+  .menu-veu {
+    position: fixed;
+    inset: 0;
+    z-index: 94;
+    background: rgba(6, 21, 15, 0.72);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transicao), visibility var(--transicao);
+    border: 0;
+    padding: 0;
+    width: 100%;
+  }
+  .menu-veu.aberto { opacity: 1; visibility: visible; }
+
+  .abre-menu { display: block; z-index: 97; }
+  .abre-menu[aria-expanded="true"] span { background: var(--texto); }
+
+  /* O cartão vive dentro do <header>, que cria contexto de empilhamento: sem
+     isto o véu fica por baixo da barra do topo e clicar lá não fecha nada. */
+  .menu-aberto .cabecalho { pointer-events: none; }
+  .menu-aberto .cabecalho .abre-menu,
+  .menu-aberto .cabecalho .menu { pointer-events: auto; }
+  .menu-aberto .cabecalho { background: transparent; box-shadow: none; }
 }
 
 @media (max-width: 560px) {

@@ -78,13 +78,13 @@ npm test           # 69 testes do motor + contraste da paleta, sem dependências
 
 # end-to-end: precisa do servidor a correr e de playwright
 npm install playwright && npx playwright install chromium
-npm run test:e2e   # 69 verificações nas três páginas
+npm run test:e2e   # 92 verificações nas três páginas
 ```
 
 O `e2e` cobre navegação, ligação directa por serviço, a barra de acção, os
-grupos colapsáveis, o fluxo completo de marcação, o ficheiro `.ics`, o painel com
-estados e filtros, o comportamento a 390px e a ausência de texto invisível ou
-erros na consola.
+grupos colapsáveis, o menu em cartão no telemóvel (foco, teclado, fecho), o fluxo
+completo de marcação, o ficheiro `.ics`, o painel com estados e filtros, o
+comportamento a 390px e a ausência de texto invisível ou erros na consola.
 
 ## Estrutura
 
@@ -123,5 +123,7 @@ cima. A galeria é um mosaico por colunas, porque as fotos da casa são umas em
 paisagem e outras em retrato e uma grelha de altura fixa cortava-as a meio.
 
 A barra de acção é uma faixa amarela: é o elemento que tem de saltar à vista, e
-sobre amarelo todo o texto passa a verde escuro. Todas as combinações de cor são
+sobre amarelo todo o texto passa a verde escuro. No telemóvel a navegação abre
+num cartão amarelo ao centro do ecrã, com véu por trás, foco preso lá dentro e
+fecho por Escape ou toque fora. Todas as combinações de cor são
 verificadas contra o WCAG em `testes/contraste.test.mjs`.
