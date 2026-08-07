@@ -187,6 +187,7 @@ export function criarMarcacao({ servicoId, barbeiroId, data, inicio, nome, telem
     escolhaBarbeiro: barbeiroId,
     data, inicio,
     nome: nome.trim(), telemovel: telemovel.trim(), notas: (notas || "").trim(),
+    estado: "agendada",
     minha: true,
     criadoEm: Date.now()
   };
@@ -270,6 +271,7 @@ export function semearAgenda(agora = new Date()) {
         barbeiroId: barbeiro.id, escolhaBarbeiro: barbeiro.id,
         data: chave, inicio,
         nome: "Reservado", telemovel: "", notas: "",
+        estado: "agendada",
         minha: false, criadoEm: 0
       });
     }
@@ -294,4 +296,140 @@ export function validarTelemovel(v) {
   if (!limpo) return "Precisamos de um contacto.";
   if (!/^9\d{8}$/.test(limpo)) return "Indique um telemóvel português válido (9XX XXX XXX).";
   return null;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Painel — consultas e estados
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const ESTADOS = {
+  agendada:  { rotulo: "Agendada",  cor: "agendada" },
+  concluida: { rotulo: "Concluída", cor: "concluida" },
+  falta:     { rotulo: "Faltou",    cor: "falta" }
+};
+
+/** Marcações de um dia, ordenadas por hora. `barbeiroId` vazio devolve todas. */
+export function marcacoesDe(chave, barbeiroId = "") {
+  return todasAsMarcacoes()
+    .filter((m) => m.data === chave && (!barbeiroId || m.barbeiroId === barbeiroId))
+    .sort((a, b) => a.inicio - b.inicio);
+}
+
+export function definirEstado(id, estado) {
+  if (!ESTADOS[estado]) return false;
+  const lista = todasAsMarcacoes();
+  const alvo = lista.find((m) => m.id === id);
+  if (!alvo) return false;
+  alvo.estado = estado;
+  cache = [...lista];
+  gravar(cache);
+  return true;
+}
+
+/** Contagem, minutos ocupados e receita prevista de um dia. */
+export function resumoDoDia(chave, barbeiroId = "") {
+  const lista = marcacoesDe(chave, barbeiroId);
+  const contadas = lista.filter((m) => m.estado !== "falta");
+  return {
+    total: lista.length,
+    concluidas: lista.filter((m) => m.estado === "concluida").length,
+    faltas: lista.filter((m) => m.estado === "falta").length,
+    minutos: contadas.reduce((s, m) => s + m.minutos, 0),
+    receita: contadas.reduce((s, m) => s + (m.preco || 0), 0)
+  };
+}
+
+/** Dias com marcações, do mais próximo ao mais distante. */
+export function diasComMarcacoes() {
+  return [...new Set(todasAsMarcacoes().map((m) => m.data))].sort();
+}
+
+export function limparTudo() {
+  cache = [];
+  gravar(cache);
+  try { localStorage.removeItem(CHAVE_SEED); } catch { /* ignorado */ }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Calendário
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** Data + minutos → objecto Date local. */
+export function instanteDe(chave, minutos) {
+  const d = dataDeChave(chave);
+  d.setMinutes(minutos);
+  return d;
+}
+
+/** Carimbo UTC no formato iCalendar: 20260812T090000Z */
+const carimboUTC = (d) =>
+  d.getUTCFullYear() +
+  String(d.getUTCMonth() + 1).padStart(2, "0") +
+  String(d.getUTCDate()).padStart(2, "0") + "T" +
+  String(d.getUTCHours()).padStart(2, "0") +
+  String(d.getUTCMinutes()).padStart(2, "0") +
+  String(d.getUTCSeconds()).padStart(2, "0") + "Z";
+
+/** RFC 5545: vírgula, ponto-e-vírgula, barra e quebra de linha são especiais. */
+const escaparICS = (t) => String(t)
+  .replace(/\\/g, "\\\\")
+  .replace(/;/g, "\\;")
+  .replace(/,/g, "\\,")
+  .replace(/\r?\n/g, "\\n");
+
+/**
+ * Gera o ficheiro .ics de uma marcação.
+ * A norma exige CRLF — com LF simples o Outlook recusa o ficheiro.
+ */
+export function paraICS(marcacao, servico) {
+  const inicio = instanteDe(marcacao.data, marcacao.inicio);
+  const fim = instanteDe(marcacao.data, marcacao.inicio + marcacao.minutos);
+  const titulo = `${servico.nome} — ${CASA.nome}`;
+  const local = `${CASA.morada}, ${CASA.codigoPostal} ${CASA.localidade}`;
+  const detalhe = [
+    `Barbeiro: ${nomeBarbeiro(marcacao.barbeiroId)}`,
+    `Serviço: ${servico.nome} (${marcacao.minutos} min)`,
+    marcacao.preco ? `Valor: ${marcacao.preco} EUR` : null,
+    `Código: ${marcacao.codigo}`,
+    `Telefone: ${CASA.telefone}`
+  ].filter(Boolean).join("\n");
+
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Barbearia Garcia//Marcacoes//PT",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${marcacao.id}@barbearia-garcia`,
+    `DTSTAMP:${carimboUTC(new Date())}`,
+    `DTSTART:${carimboUTC(inicio)}`,
+    `DTEND:${carimboUTC(fim)}`,
+    `SUMMARY:${escaparICS(titulo)}`,
+    `DESCRIPTION:${escaparICS(detalhe)}`,
+    `LOCATION:${escaparICS(local)}`,
+    "STATUS:CONFIRMED",
+    "BEGIN:VALARM",
+    "TRIGGER:-PT2H",
+    "ACTION:DISPLAY",
+    `DESCRIPTION:${escaparICS(titulo)}`,
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n") + "\r\n";
+}
+
+/** Alternativa sem descarregar ficheiro, útil em telemóvel. */
+export function ligacaoGoogleAgenda(marcacao, servico) {
+  const inicio = instanteDe(marcacao.data, marcacao.inicio);
+  const fim = instanteDe(marcacao.data, marcacao.inicio + marcacao.minutos);
+  const p = new URLSearchParams({
+    action: "TEMPLATE",
+    text: `${servico.nome} — ${CASA.nome}`,
+    dates: `${carimboUTC(inicio)}/${carimboUTC(fim)}`,
+    details: `Barbeiro: ${nomeBarbeiro(marcacao.barbeiroId)}\nCódigo: ${marcacao.codigo}`,
+    location: `${CASA.morada}, ${CASA.codigoPostal} ${CASA.localidade}`
+  });
+  return `https://calendar.google.com/calendar/render?${p}`;
 }

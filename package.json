@@ -5,7 +5,8 @@
   "description": "Site de demonstração da Barbearia Garcia & Tatuagem, com marcações funcionais",
   "scripts": {
     "start": "python3 -m http.server 8080",
-    "test": "node testes/marcacoes.test.mjs",
+    "test": "node testes/marcacoes.test.mjs && node testes/contraste.test.mjs",
     "test:e2e": "node testes/e2e.mjs"
-  }
+  },
+  "type": "module"
 }

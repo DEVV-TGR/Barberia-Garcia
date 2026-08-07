@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marcar a minha vez — Barbearia Garcia</title>
+<meta name="description" content="Marque o seu corte, degradé ou barba na Barbearia Garcia, em Moreira. Quatro passos, sem chamadas.">
+<meta name="theme-color" content="#0d2a1f">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_PT">
+<meta property="og:title" content="Marcar a minha vez — Barbearia Garcia">
+<meta property="og:description" content="Marque o seu corte, degradé ou barba na Barbearia Garcia, em Moreira. Quatro passos, sem chamadas.">
+<meta property="og:image" content="assets/img/cover-1.jpg">
+<link rel="icon" href="assets/img/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/marcar.css">
+</head>
+<body>
+
+<a class="botao botao--cheio salta" href="#principal">Saltar para o conteúdo</a>
+
+<header class="cabecalho" id="cabecalho">
+  <div class="envolve">
+    <a class="marca" href="index.html">
+      Barbearia Garcia
+      <small>Desde 1997</small>
+    </a>
+
+    <button class="abre-menu" id="abre-menu" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="menu" id="menu" aria-label="Navegação principal">
+      <a href="index.html">Início</a>
+      <a href="index.html#servicos">Serviços</a>
+      <a href="index.html#equipa">Equipa</a>
+      <a href="index.html#visitar">Visitar</a>
+      <a class="botao botao--cheio botao--pequeno" href="marcar.html">Marcar vez</a>
+    </nav>
+  </div>
+</header>
+
+<main id="principal" class="pagina-marcar">
+  <div class="envolve">
+
+    <header class="marcar__cabeca">
+      <p class="sobrescrita">Marcações</p>
+      <h1 class="titulo-seccao">Marque a <em>sua vez</em></h1>
+      <p class="entrada">Quatro passos e está feito. Sem chamadas, sem esperas.</p>
+    </header>
+
+    <ol class="passos" id="passos">
+      <li aria-current="step" data-passo="1"><span class="n">1</span><span class="rotulo-passo">Serviço</span></li>
+      <li data-passo="2"><span class="n">2</span><span class="rotulo-passo">Barbeiro</span></li>
+      <li data-passo="3"><span class="n">3</span><span class="rotulo-passo">Dia e hora</span></li>
+      <li data-passo="4"><span class="n">4</span><span class="rotulo-passo">Os seus dados</span></li>
+    </ol>
+
+    <form id="assistente" novalidate>
+
+      <section class="painel" data-painel="1" aria-label="Passo 1: escolher serviço">
+        <h2 class="painel__titulo">O que vai ser?</h2>
+        <p class="painel__nota">Escolha um serviço da carta.</p>
+        <div id="opcoes-servico"></div>
+      </section>
+
+      <section class="painel" data-painel="2" hidden aria-label="Passo 2: escolher barbeiro">
+        <h2 class="painel__titulo">Com quem?</h2>
+        <p class="painel__nota">Todos fazem o serviço. Se não tiver preferência, tratamos disso.</p>
+        <div class="opcoes opcoes--barbeiros" id="opcoes-barbeiro"></div>
+      </section>
+
+      <section class="painel painel--duplo" data-painel="3" hidden aria-label="Passo 3: escolher dia e hora">
+        <div class="coluna-cheia">
+          <h2 class="painel__titulo">Quando lhe dá jeito?</h2>
+          <p class="painel__nota">Fechamos ao domingo. Os dias sem vaga aparecem apagados.</p>
+        </div>
+
+        <div class="calendario">
+          <div class="calendario__topo">
+            <span class="calendario__mes" id="cal-mes"></span>
+            <div class="calendario__nav">
+              <button type="button" id="cal-anterior" aria-label="Mês anterior">&#8249;</button>
+              <button type="button" id="cal-seguinte" aria-label="Mês seguinte">&#8250;</button>
+            </div>
+          </div>
+          <div class="calendario__semana" aria-hidden="true">
+            <span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span>
+          </div>
+          <div class="calendario__dias" id="cal-dias" role="group" aria-label="Dias disponíveis"></div>
+        </div>
+
+        <div id="zona-horas" aria-live="polite"></div>
+      </section>
+
+      <section class="painel painel--duplo" data-painel="4" hidden aria-label="Passo 4: os seus dados">
+        <div class="coluna-cheia">
+          <h2 class="painel__titulo">Só falta saber quem é.</h2>
+          <p class="painel__nota">Guardamos isto apenas para o reconhecer à chegada.</p>
+        </div>
+
+        <div class="campos">
+          <div class="campo" id="campo-nome">
+            <label for="nome">Nome <span class="obrig">*</span></label>
+            <input type="text" id="nome" name="nome" autocomplete="name" placeholder="Como se chama?" required>
+            <span class="campo__erro" id="erro-nome"></span>
+          </div>
+
+          <div class="campo" id="campo-telemovel">
+            <label for="telemovel">Telemóvel <span class="obrig">*</span></label>
+            <input type="tel" id="telemovel" name="telemovel" autocomplete="tel" placeholder="9XX XXX XXX" inputmode="numeric" required>
+            <span class="campo__erro" id="erro-telemovel"></span>
+          </div>
+
+          <div class="campo">
+            <label for="notas">Alguma observação</label>
+            <textarea id="notas" name="notas" placeholder="Por exemplo: máquina 2 nos lados, tesoura em cima."></textarea>
+            <span class="campo__dica">Opcional.</span>
+          </div>
+        </div>
+
+        <div class="resumo" id="resumo"></div>
+      </section>
+
+      <section class="painel" data-painel="5" hidden aria-label="Marcação confirmada">
+        <div class="confirmado">
+          <div class="confirmado__selo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h2 class="painel__titulo">Está marcado.</h2>
+          <p class="painel__nota" id="texto-confirmacao"></p>
+
+          <p class="codigo-reserva" id="codigo-reserva"></p>
+          <p class="painel__nota">Guarde este código. Precisa dele para anular.</p>
+
+          <div class="resumo" id="resumo-final"></div>
+
+          <div class="confirmado__accoes">
+            <button type="button" class="botao botao--cheio" id="guardar-ics">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/>
+              </svg>
+              Guardar no calendário
+            </button>
+            <a class="botao" id="google-agenda" href="#" target="_blank" rel="noopener">Google Agenda</a>
+          </div>
+
+          <div style="margin-top:1.5rem">
+            <button type="button" class="botao botao--discreto" id="nova-marcacao">Marcar outra vez</button>
+          </div>
+        </div>
+      </section>
+
+    </form>
+
+    <p class="nota-demo" style="margin-top:2.5rem">
+      <span class="marca-i">i</span>
+      <span>
+        <strong>Isto é uma demonstração.</strong> As marcações ficam guardadas
+        apenas neste navegador e não chegam à barbearia. Para marcar a sério,
+        ligue <a href="tel:+351914230669">914 230 669</a>.
+      </span>
+    </p>
+
+    <section class="minhas" id="minhas">
+      <h2 class="painel__titulo">As suas marcações</h2>
+      <div id="lista-minhas"></div>
+    </section>
+
+  </div>
+
+  <!-- Barra de acção: sobe assim que há uma escolha -->
+  <div class="barra-accao" id="barra-accao" hidden>
+    <div class="barra-accao__interior">
+      <button type="button" class="barra-accao__atras" id="btn-atras" aria-label="Voltar atrás">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <div class="barra-accao__resumo" id="barra-resumo"></div>
+
+      <button type="button" class="botao botao--cheio" id="btn-avancar">Avançar</button>
+    </div>
+  </div>
+</main>
+
+<footer class="rodape">
+  <div class="envolve">
+    <div class="rodape__grelha">
+      <div>
+        <p class="marca" style="margin-bottom:1rem">Barbearia Garcia<small>Tradição e Qualidade</small></p>
+        <p style="color:var(--texto-2);font-size:.92rem;margin:0">
+          Alameda Padre Alcino Azevedo Barbosa 6<br>
+          4470-580 Moreira, Maia
+        </p>
+        <p style="margin-top:1rem">
+          <a href="tel:+351914230669" style="color:var(--acento);font-weight:600;text-decoration:none">914 230 669</a>
+        </p>
+      </div>
+
+      <div>
+        <h4>Horário</h4>
+        <ul id="rodape-horario" class="rodape__horario"></ul>
+        <div class="estado-loja" id="estado-loja">
+          <span class="ponto"></span>
+          <span id="estado-texto">A verificar…</span>
+        </div>
+      </div>
+
+      <div>
+        <h4>Navegar</h4>
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="index.html#servicos">Serviços e preços</a></li>
+          <li><a href="index.html#equipa">A equipa</a></li>
+          <li><a href="marcar.html">Marcar a minha vez</a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&amp;query=Alameda+Padre+Alcino+Azevedo+Barbosa+6,+4470-580+Moreira" target="_blank" rel="noopener">Como chegar</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rodape__base">
+      <small>&copy; <span id="ano"></span> Barbearia Garcia &amp; Tatuagem</small>
+      <small class="aviso-demo">Site de demonstração — não é o site oficial da barbearia.</small>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="assets/js/marcar.js"></script>
+</body>
+</html>

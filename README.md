@@ -6,37 +6,63 @@ em Moreira, Maia. Estático, sem build, sem dependências em produção.
 > **Isto é uma demonstração.** Não é o site oficial da barbearia. As marcações
 > ficam guardadas apenas no navegador de quem visita e não chegam à loja.
 
+## Páginas
+
+| Página | O que é |
+|---|---|
+| `index.html` | Início — a casa, a carta com preços, a equipa, o salão, contactos |
+| `marcar.html` | Assistente de marcações em quatro passos |
+| `painel.html` | Painel interno com a agenda dos barbeiros (código `1997`) |
+
 ## O que tem
 
-- **Marcações funcionais** em quatro passos: serviço → barbeiro → dia e hora → dados.
-- Catálogo com os **19 serviços reais** e os preços praticados (4 € a 30 €).
-- Os **três barbeiros** da casa, com agendas independentes.
-- Calendário que respeita o horário real: segunda a sábado, 10:00–20:00, domingo encerrado.
+- **Marcações funcionais**: serviço → barbeiro → dia e hora → dados.
+- **Barra de acção fixa**: assim que há uma escolha, sobe uma barra com o
+  resumo e o botão de avançar. Não é preciso rolar até ao fim para continuar.
+- **Marcar a partir de um serviço**: cada linha da carta liga a
+  `marcar.html?servico=<id>`, que abre já com o serviço escolhido.
+- **Guardar no calendário**: ficheiro `.ics` ou ligação para o Google Agenda.
+- **Painel**: agenda por dia, filtro por barbeiro, resumo de ocupação e receita,
+  e estados (agendada / concluída / faltou).
+- Os 19 serviços reais com os preços praticados, os três barbeiros e o horário
+  da casa.
 
 ## Como as marcações funcionam
 
-O motor está em [`assets/js/marcacoes.js`](assets/js/marcacoes.js) e aplica estas regras:
+O motor está em [`assets/js/marcacoes.js`](assets/js/marcacoes.js) e é a única
+porta de acesso aos dados — nem o assistente nem o painel falam com o
+`localStorage` directamente.
 
 | Regra | Comportamento |
 |---|---|
 | Horário | Seg–Sáb 10:00–20:00. Domingo não gera horas. |
-| Duração | A marcação tem de caber inteira antes do fecho. Madeixas (165 min) só até às 17:15. |
+| Duração | A marcação tem de caber antes do fecho. Madeixas (165 min) só até às 17:15. |
 | Sobreposição | Um barbeiro não pode ter duas marcações que se cruzem. |
-| Sem preferência | Só oferece a hora se houver pelo menos um barbeiro livre; atribui um no momento de confirmar. |
+| Sem preferência | Só oferece a hora se houver alguém livre; atribui ao confirmar. |
 | Antecedência | Mínimo 30 minutos, máximo 60 dias. |
-| Corrida | O slot é revalidado ao gravar; se entretanto foi ocupado, recusa e devolve ao passo da hora. |
+| Corrida | O slot é revalidado ao gravar; se foi ocupado entretanto, recusa. |
 
 As horas ocupadas aparecem riscadas em vez de escondidas — é mais informativo
 do que fazer desaparecer metade da grelha.
 
-Os dados vivem em `localStorage`. Na primeira visita é gerada uma agenda de
-exemplo (semente fixa, estável entre visitas) para o calendário não aparecer
-vazio e para se ver o que acontece quando uma hora já está tomada.
+Na primeira visita é gerada uma agenda de exemplo (semente fixa, estável entre
+visitas) para o calendário não aparecer vazio.
+
+### O que esta demonstração não faz
+
+Não há servidor. As marcações vivem no `localStorage` do navegador de quem as
+faz, por isso **um barbeiro que abra o painel no telemóvel dele não vê o que um
+cliente marcou noutro dispositivo**. O painel tem um botão para carregar uma
+agenda de exemplo, de modo a poder ser mostrado preenchido.
+
+Pela mesma razão, o código de acesso ao painel (`1997`) está no código-fonte e
+não é segurança — separa o painel do site público, nada mais. Num sistema a
+sério isto seria validado num servidor.
 
 ## Correr localmente
 
 ```bash
-python3 -m http.server 8080
+npm start          # python3 -m http.server 8080
 # abrir http://localhost:8080
 ```
 
@@ -46,24 +72,31 @@ via `file://`.
 ## Testes
 
 ```bash
-node testes/marcacoes.test.mjs   # 37 testes do motor, sem dependências
+npm test           # 67 testes do motor + contraste da paleta, sem dependências
 
-# end-to-end (precisa de servidor na porta 8080 e de playwright instalado)
+# end-to-end: precisa do servidor a correr e de playwright
 npm install playwright && npx playwright install chromium
-node testes/e2e.mjs
+npm run test:e2e   # 52 verificações nas três páginas
 ```
+
+O `e2e` cobre navegação, ligação directa por serviço, a barra de acção, o fluxo
+completo de marcação, o ficheiro `.ics`, o painel com estados e filtros, o
+comportamento a 390px e a ausência de texto invisível ou erros na consola.
 
 ## Estrutura
 
 ```
-index.html
+index.html  marcar.html  painel.html
 assets/
-  css/estilo.css       sistema visual: paleta, tipografia, secções
-  css/marcacoes.css    assistente de marcações
-  js/dados.js          fonte única: serviços, preços, barbeiros, horário
-  js/marcacoes.js      motor: disponibilidade, conflitos, persistência
-  js/site.js           interface e render
-  img/                 fotografias e emblema da casa
+  css/base.css     tokens, tipografia, botões, navegação, rodapé
+  css/inicio.css   secções da página inicial
+  css/marcar.css   assistente e barra de acção
+  css/painel.css   agenda do painel
+  js/dados.js      fonte única: serviços, preços, barbeiros, horário
+  js/marcacoes.js  motor: disponibilidade, conflitos, estados, ICS
+  js/nucleo.js     utilidades partilhadas
+  js/inicio.js  js/marcar.js  js/painel.js
+  img/             fotografias e emblema da casa
 testes/
 ```
 
@@ -71,12 +104,16 @@ testes/
 
 Serviços, preços, durações, barbeiros, horário, morada e telefone foram
 recolhidos do perfil público da barbearia no Noona. As fotografias e o emblema
-são da casa. Os textos descritivos foram escritos para a demonstração.
+são da casa. Os textos descritivos foram escritos para a demonstração e ainda
+não estão confirmados com a barbearia.
 
 ## Desenho
 
-A paleta sai do próprio emblema: dourado `#c9a24a`, preto e creme.
-Tipografia [Bodoni Moda](https://fonts.google.com/specimen/Bodoni+Moda) para
-títulos (a didone do letreiro) e [Jost](https://fonts.google.com/specimen/Jost)
-para texto corrido. As fotografias levam tratamento a preto e branco com um
-toque de sépia para uniformizar material vindo de telemóveis diferentes.
+Verde-garrafa `#0d2a1f` de base com amarelo-açafrão `#f2b705` em acento — verde
+e amarelo brasileiros, mas com o amarelo a pontuar em vez de dominar.
+[Oswald](https://fonts.google.com/specimen/Oswald) condensada nos títulos, à
+maneira dos letreiros de barbearia, e
+[Figtree](https://fonts.google.com/specimen/Figtree) no texto corrido. Botões em
+pill e cantos arredondados em todo o lado. As fotografias levam um duotone verde
+para assentarem na paleta. Todas as combinações de cor são verificadas contra o
+WCAG em `testes/contraste.test.mjs`.

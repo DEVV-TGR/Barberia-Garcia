@@ -38,6 +38,7 @@ export const BARBEIROS = [
 export const SERVICOS = [
   {
     "id": "corte-classico-maquina-e-tesoura",
+    "destaque": true,
     "nome": "Corte Clássico (Máquina e Tesoura)",
     "grupo": "Barbearia",
     "minutos": 30,
@@ -59,6 +60,7 @@ export const SERVICOS = [
   },
   {
     "id": "corte-degrade",
+    "destaque": true,
     "nome": "Corte Degradé",
     "grupo": "Barbearia",
     "minutos": 45,
@@ -87,6 +89,7 @@ export const SERVICOS = [
   },
   {
     "id": "barba-a-vapor",
+    "destaque": true,
     "nome": "Barba a Vapor",
     "grupo": "Barbearia",
     "minutos": 30,
@@ -101,6 +104,7 @@ export const SERVICOS = [
   },
   {
     "id": "corte-degrade-barba-vapor",
+    "destaque": true,
     "nome": "Corte Degradé + Barba Vapor",
     "grupo": "Barbearia",
     "minutos": 60,

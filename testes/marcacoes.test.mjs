@@ -106,5 +106,66 @@ console.log("\n── Datas por extenso (PT-PT) ──");
 const ex = M.dataPorExtenso("2026-03-09");
 ok(ex === "segunda-feira, 9 de março", `dataPorExtenso: "${ex}"`);
 
+
+console.log("\n── Estados ──");
+const rE = M.criarMarcacao({ servicoId: corte.id, barbeiroId: "miguel", data: KSEG, inicio: 900,
+  nome: "Estado Teste", telemovel: "917777777" });
+ok(rE.marcacao.estado === "agendada", "nasce com estado 'agendada'");
+ok(M.definirEstado(rE.marcacao.id, "concluida"), "definirEstado aceita 'concluida'");
+ok(M.marcacoesDe(KSEG).find(m => m.id === rE.marcacao.id).estado === "concluida", "o estado persiste");
+ok(!M.definirEstado(rE.marcacao.id, "inventado"), "estado inválido é recusado");
+ok(!M.definirEstado("nao-existe", "falta"), "id inexistente é recusado");
+
+console.log("\n── Consultas do painel ──");
+const doDia = M.marcacoesDe(KSEG);
+ok(doDia.length > 0, `marcacoesDe devolve ${doDia.length} marcações`);
+ok(doDia.every((m, i) => i === 0 || doDia[i-1].inicio <= m.inicio), "vêm ordenadas por hora");
+const soMiguel = M.marcacoesDe(KSEG, "miguel");
+ok(soMiguel.every(m => m.barbeiroId === "miguel"), "filtro por barbeiro funciona");
+ok(soMiguel.length <= doDia.length, "o filtro reduz ou mantém");
+
+const resumo = M.resumoDoDia(KSEG);
+ok(resumo.total === doDia.length, `resumo conta ${resumo.total} marcações`);
+ok(resumo.receita > 0, `receita prevista ${resumo.receita} €`);
+ok(resumo.minutos > 0, `${resumo.minutos} minutos ocupados`);
+M.definirEstado(rE.marcacao.id, "falta");
+const resumo2 = M.resumoDoDia(KSEG);
+ok(resumo2.faltas === 1, "as faltas são contadas");
+ok(resumo2.receita === resumo.receita - corte.preco, "uma falta não conta para a receita");
+
+console.log("\n── Ficheiro .ics ──");
+const rI = M.criarMarcacao({ servicoId: madeixas.id, barbeiroId: "ary", data: KSEG, inicio: 615,
+  nome: "Ana; Silva, Jr", telemovel: "918888888", notas: "Linha um\nlinha dois" });
+const ics = M.paraICS(rI.marcacao, madeixas);
+ok(ics.includes("\r\n"), "usa CRLF (o Outlook recusa só LF)");
+ok(!/[^\r]\n/.test(ics), "não há nenhum LF sem CR antes");
+ok(ics.startsWith("BEGIN:VCALENDAR\r\n"), "começa em BEGIN:VCALENDAR");
+ok(ics.trimEnd().endsWith("END:VCALENDAR"), "termina em END:VCALENDAR");
+ok(/^UID:.+@barbearia-garcia$/m.test(ics), "tem UID");
+ok(/^DTSTART:\d{8}T\d{6}Z$/m.test(ics), "DTSTART em UTC");
+ok(/^DTEND:\d{8}T\d{6}Z$/m.test(ics), "DTEND em UTC");
+ok(ics.includes("SUMMARY:Madeixas"), "SUMMARY tem o serviço");
+ok(ics.includes("BEGIN:VALARM"), "inclui lembrete");
+
+// Duração: 615 -> 615+165 = 780. Confirmar diferença de 165 min no ICS.
+const gd = (t) => { const m = ics.match(new RegExp("^"+t+":(\\d{4})(\\d{2})(\\d{2})T(\\d{2})(\\d{2})", "m"));
+  return Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5]); };
+ok((gd("DTEND") - gd("DTSTART")) / 60000 === madeixas.minutos,
+   `duração no ICS = ${madeixas.minutos} min`);
+
+const linhaSum = ics.split("\r\n").find(l => l.startsWith("DESCRIPTION:"));
+ok(!/(?<!\\),/.test(linhaSum.slice(12)), "vírgulas escapadas na descrição");
+ok(!ics.includes("Linha um\nlinha dois"), "quebras de linha não passam em bruto");
+
+console.log("\n── Ligação Google Agenda ──");
+const url = M.ligacaoGoogleAgenda(rI.marcacao, madeixas);
+ok(url.startsWith("https://calendar.google.com/calendar/render?"), "URL do Google Agenda");
+ok(/dates=\d{8}T\d{6}Z%2F\d{8}T\d{6}Z/.test(url), "intervalo de datas codificado");
+ok(url.includes("action=TEMPLATE"), "action=TEMPLATE");
+
+console.log("\n── Limpar ──");
+M.limparTudo();
+ok(M.todasAsMarcacoes().length === 0, "limparTudo esvazia o armazenamento");
+
 console.log(`\n${"─".repeat(46)}\n  ${passou} passaram · ${falhou} falharam\n`);
 process.exit(falhou ? 1 : 0);

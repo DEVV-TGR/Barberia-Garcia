@@ -2,32 +2,29 @@
 <html lang="pt-PT">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Barbearia Garcia &amp; Tatuagem — Moreira, Maia · Desde 1997</title>
-<meta name="description" content="Barbearia clássica em Moreira, Maia, desde 1997. Corte à tesoura, degradés e barba a vapor. Marque a sua vez online, em poucos segundos.">
-<meta name="theme-color" content="#0a0a0b">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Barbearia Garcia & Tatuagem — Moreira, Maia · Desde 1997</title>
+<meta name="description" content="Barbearia clássica em Moreira, Maia, desde 1997. Corte à tesoura, degradés e barba a vapor. Marque a sua vez online.">
+<meta name="theme-color" content="#0d2a1f">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_PT">
-<meta property="og:title" content="Barbearia Garcia &amp; Tatuagem — Desde 1997">
-<meta property="og:description" content="Tradição e qualidade em Moreira, Maia. Marcações online.">
+<meta property="og:title" content="Barbearia Garcia & Tatuagem — Moreira, Maia · Desde 1997">
+<meta property="og:description" content="Barbearia clássica em Moreira, Maia, desde 1997. Corte à tesoura, degradés e barba a vapor. Marque a sua vez online.">
 <meta property="og:image" content="assets/img/cover-1.jpg">
-
 <link rel="icon" href="assets/img/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/estilo.css">
-<link rel="stylesheet" href="assets/css/marcacoes.css">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/inicio.css">
 </head>
 <body>
 
-<a class="botao botao--cheio salta" href="#marcar">Saltar para as marcações</a>
+<a class="botao botao--cheio salta" href="#principal">Saltar para o conteúdo</a>
 
-<!-- ── Cabeçalho ────────────────────────────────────────────────────────── -->
 <header class="cabecalho" id="cabecalho">
   <div class="envolve">
-    <a class="marca" href="#topo">
+    <a class="marca" href="index.html">
       Barbearia Garcia
       <small>Desde 1997</small>
     </a>
@@ -37,58 +34,46 @@
     </button>
 
     <nav class="menu" id="menu" aria-label="Navegação principal">
-      <a href="#casa">A Casa</a>
-      <a href="#servicos">Serviços</a>
-      <a href="#equipa">Equipa</a>
-      <a href="#visitar">Visitar</a>
-      <a href="#marcar">Marcar</a>
+      <a href="index.html">Início</a>
+      <a href="index.html#servicos">Serviços</a>
+      <a href="index.html#equipa">Equipa</a>
+      <a href="index.html#visitar">Visitar</a>
+      <a class="botao botao--cheio botao--pequeno" href="marcar.html">Marcar vez</a>
     </nav>
   </div>
 </header>
 
-<main id="topo">
+<main id="principal">
 
-  <!-- ── Hero ───────────────────────────────────────────────────────────── -->
   <section class="hero">
     <div class="hero__fundo">
       <img src="assets/img/cover-1.jpg" alt="" aria-hidden="true" fetchpriority="high">
     </div>
 
-    <div class="envolve">
-      <div class="hero__conteudo">
-        <span class="hero__desde">Tradição e Qualidade · Desde 1997</span>
-        <h1>
-          <span class="linha"><span>Barbearia</span></span>
-          <span class="linha"><span><em>Garcia</em></span></span>
-        </h1>
-        <p class="hero__lema">
-          <span id="anos-casa">Quase trinta</span> anos a cortar cabelo em Moreira.
-          Tesoura, navalha e toalha quente — do jeito que sempre se fez.
-        </p>
-        <div class="hero__accoes">
-          <a class="botao botao--cheio" href="#marcar">Marcar a minha vez</a>
-          <a class="botao" href="#servicos">Ver serviços</a>
-        </div>
+    <div class="envolve hero__conteudo">
+      <span class="etiqueta">Moreira, Maia · Desde 1997</span>
+      <h1>
+        <span>Barbearia</span>
+        <span class="hero__acento">Garcia</span>
+      </h1>
+      <p class="hero__lema">
+        <span id="anos-casa">Quase trinta</span> anos a cortar cabelo em Moreira.
+        Tesoura, navalha e toalha quente — do jeito que sempre se fez.
+      </p>
+      <div class="hero__accoes">
+        <a class="botao botao--cheio" href="marcar.html">Marcar a minha vez</a>
+        <a class="botao" href="#servicos">Ver a carta</a>
       </div>
-    </div>
 
-    <div class="envolve hero__rodape">
-      <span>Alameda Padre Alcino Azevedo Barbosa 6 · Moreira, Maia</span>
-      <span id="hero-estado">Segunda a sábado · <strong>10:00 – 20:00</strong></span>
+      <dl class="hero__factos">
+        <div><dt>Desde</dt><dd>1997</dd></div>
+        <div><dt>Barbeiros</dt><dd>3</dd></div>
+        <div><dt>Avaliações</dt><dd>59</dd></div>
+        <div><dt>A partir de</dt><dd>4 €</dd></div>
+      </dl>
     </div>
   </section>
 
-  <!-- ── Credenciais ────────────────────────────────────────────────────── -->
-  <section class="faixa">
-    <dl class="envolve">
-      <div class="faixa__item"><dt>Ao serviço desde</dt><dd>1997</dd></div>
-      <div class="faixa__item"><dt>Clientes fiéis</dt><dd>59<small>avaliações</small></dd></div>
-      <div class="faixa__item"><dt>Na cadeira</dt><dd>3<small>barbeiros</small></dd></div>
-      <div class="faixa__item"><dt>Serviços</dt><dd>19<small>na carta</small></dd></div>
-    </dl>
-  </section>
-
-  <!-- ── A Casa ─────────────────────────────────────────────────────────── -->
   <section class="seccao casa" id="casa">
     <div class="envolve">
       <div class="revelar">
@@ -104,10 +89,7 @@
           lado, o estúdio de tatuagem. O ofício é o mesmo de sempre: mão firme,
           atenção ao pormenor e tempo para conversar.
         </p>
-        <p class="assinatura">
-          Ary Garcia
-          <small>Mestre barbeiro · Fundador</small>
-        </p>
+        <p class="assinatura">Ary Garcia<small>Mestre barbeiro · Fundador</small></p>
       </div>
 
       <div class="casa__retrato revelar">
@@ -119,22 +101,19 @@
     </div>
   </section>
 
-  <!-- ── Serviços ───────────────────────────────────────────────────────── -->
   <section class="seccao servicos" id="servicos">
     <div class="envolve">
       <div class="servicos__cabeca revelar">
         <div>
           <p class="sobrescrita">A Carta</p>
           <h2 class="titulo-seccao">Serviços <em>&amp; preços</em></h2>
+          <p class="entrada">Clique em marcar e vai direito ao passo seguinte, já com o serviço escolhido.</p>
         </div>
-        <a class="botao botao--discreto" href="#marcar">Marcar um destes</a>
       </div>
-
       <div id="lista-servicos" class="revelar"></div>
     </div>
   </section>
 
-  <!-- ── Equipa ─────────────────────────────────────────────────────────── -->
   <section class="seccao equipa" id="equipa">
     <div class="envolve">
       <div class="revelar">
@@ -146,188 +125,54 @@
     </div>
   </section>
 
-  <!-- ── Galeria ────────────────────────────────────────────────────────── -->
   <section class="seccao galeria">
     <div class="envolve">
       <div class="revelar">
-        <p class="sobrescrita">A Casa por dentro</p>
+        <p class="sobrescrita">Por dentro</p>
         <h2 class="titulo-seccao">O <em>salão</em></h2>
       </div>
       <div class="galeria__grelha revelar" id="grelha-galeria"></div>
     </div>
   </section>
 
-  <!-- ── Marcações ──────────────────────────────────────────────────────── -->
-  <section class="seccao marcar" id="marcar">
-    <div class="envolve">
-      <div class="revelar">
-        <p class="sobrescrita">Marcações</p>
-        <h2 class="titulo-seccao">Marque a <em>sua vez</em></h2>
-        <p class="entrada">
-          Quatro passos e está feito. Sem chamadas, sem esperas — escolha o que
-          quer, com quem quer e a que horas.
-        </p>
-      </div>
-
-      <div class="marcar__caixa revelar">
-        <ol class="passos" id="passos">
-          <li aria-current="step" data-passo="1"><span class="n">1</span><span class="rotulo-passo">Serviço</span></li>
-          <li data-passo="2"><span class="n">2</span><span class="rotulo-passo">Barbeiro</span></li>
-          <li data-passo="3"><span class="n">3</span><span class="rotulo-passo">Dia e hora</span></li>
-          <li data-passo="4"><span class="n">4</span><span class="rotulo-passo">Os seus dados</span></li>
-        </ol>
-
-        <form id="assistente" novalidate>
-
-          <!-- Passo 1 — Serviço -->
-          <section class="painel" data-painel="1" aria-label="Passo 1: escolher serviço">
-            <h3 class="painel__titulo">O que vai ser?</h3>
-            <p class="painel__nota">Escolha um serviço da carta.</p>
-            <div id="opcoes-servico"></div>
-          </section>
-
-          <!-- Passo 2 — Barbeiro -->
-          <section class="painel" data-painel="2" hidden aria-label="Passo 2: escolher barbeiro">
-            <h3 class="painel__titulo">Com quem?</h3>
-            <p class="painel__nota">Todos fazem o serviço. Se não tiver preferência, tratamos disso.</p>
-            <div class="opcoes opcoes--barbeiros" id="opcoes-barbeiro"></div>
-          </section>
-
-          <!-- Passo 3 — Dia e hora -->
-          <section class="painel painel--duplo" data-painel="3" hidden aria-label="Passo 3: escolher dia e hora">
-            <div class="coluna-cheia">
-              <h3 class="painel__titulo">Quando lhe dá jeito?</h3>
-              <p class="painel__nota" id="nota-horas" style="margin-bottom:0">Fechamos ao domingo. Os dias a cinzento não têm vaga.</p>
-            </div>
-
-            <div class="calendario">
-              <div class="calendario__topo">
-                <span class="calendario__mes" id="cal-mes"></span>
-                <div class="calendario__nav">
-                  <button type="button" id="cal-anterior" aria-label="Mês anterior">&#8249;</button>
-                  <button type="button" id="cal-seguinte" aria-label="Mês seguinte">&#8250;</button>
-                </div>
-              </div>
-              <div class="calendario__semana" aria-hidden="true">
-                <span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span>
-              </div>
-              <div class="calendario__dias" id="cal-dias" role="group" aria-label="Dias disponíveis"></div>
-            </div>
-
-            <div id="zona-horas" aria-live="polite"></div>
-          </section>
-
-          <!-- Passo 4 — Dados -->
-          <section class="painel painel--duplo" data-painel="4" hidden aria-label="Passo 4: os seus dados">
-            <div class="coluna-cheia">
-              <h3 class="painel__titulo">Só falta saber quem é.</h3>
-              <p class="painel__nota" style="margin-bottom:0">Guardamos isto apenas para o reconhecer à chegada.</p>
-            </div>
-
-            <div class="campos">
-              <div class="campo" id="campo-nome">
-                <label for="nome">Nome <span class="obrig">*</span></label>
-                <input type="text" id="nome" name="nome" autocomplete="name" placeholder="Como se chama?" required>
-                <span class="campo__erro" id="erro-nome"></span>
-              </div>
-
-              <div class="campo" id="campo-telemovel">
-                <label for="telemovel">Telemóvel <span class="obrig">*</span></label>
-                <input type="tel" id="telemovel" name="telemovel" autocomplete="tel" placeholder="9XX XXX XXX" inputmode="numeric" required>
-                <span class="campo__erro" id="erro-telemovel"></span>
-              </div>
-
-              <div class="campo">
-                <label for="notas">Alguma observação</label>
-                <textarea id="notas" name="notas" placeholder="Por exemplo: máquina 2 nos lados, tesoura em cima."></textarea>
-                <span class="campo__dica">Opcional.</span>
-              </div>
-            </div>
-
-            <div class="resumo" id="resumo"></div>
-          </section>
-
-          <!-- Confirmação -->
-          <section class="painel" data-painel="5" hidden aria-label="Marcação confirmada">
-            <div class="confirmado">
-              <div class="confirmado__selo">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </div>
-              <h3 class="painel__titulo">Está marcado.</h3>
-              <p class="painel__nota" id="texto-confirmacao"></p>
-              <p class="codigo-reserva" id="codigo-reserva"></p>
-              <p class="painel__nota">Guarde este código. Precisa dele para anular.</p>
-              <div class="resumo" id="resumo-final"></div>
-              <div style="margin-top:2rem">
-                <button type="button" class="botao" id="nova-marcacao">Marcar outra vez</button>
-              </div>
-            </div>
-          </section>
-
-          <!-- Navegação -->
-          <div class="painel assistente__pe" id="pe-assistente">
-            <button type="button" class="botao botao--discreto" id="btn-atras">Voltar atrás</button>
-            <button type="button" class="botao botao--cheio" id="btn-avancar" disabled>Continuar</button>
-          </div>
-
-        </form>
-      </div>
-
-      <p class="nota-demo">
-        <span class="marca-i">i</span>
-        <span>
-          <strong>Isto é uma demonstração.</strong> As marcações ficam guardadas
-          apenas neste navegador e não chegam à barbearia. Para marcar a sério,
-          ligue <a href="tel:+351914230669" style="color:var(--ouro)">914 230 669</a>.
-        </span>
-      </p>
-
-      <!-- Marcações guardadas -->
-      <div class="minhas" id="minhas">
-        <div class="divisor"><span></span></div>
-        <h3 class="painel__titulo" style="margin-top:2.5rem">As suas marcações</h3>
-        <div id="lista-minhas"></div>
+  <section class="seccao chamada">
+    <div class="envolve revelar">
+      <div class="chamada__caixa">
+        <div>
+          <h2 class="titulo-seccao" style="margin-bottom:.6rem">Pronto para <em>a sua vez</em>?</h2>
+          <p style="color:var(--texto-2);margin:0">Quatro passos. Sem chamadas, sem esperas.</p>
+        </div>
+        <a class="botao botao--cheio" href="marcar.html">Marcar agora</a>
       </div>
     </div>
   </section>
 
-  <!-- ── Visitar ────────────────────────────────────────────────────────── -->
   <section class="seccao visitar" id="visitar">
     <div class="envolve">
       <div class="revelar">
         <p class="sobrescrita">Visitar</p>
         <h2 class="titulo-seccao">Onde nos <em>encontra</em></h2>
-        <p class="entrada">
-          Em Moreira, a dois passos do aeroporto. Estacionamento à porta.
-        </p>
+        <p class="entrada">Em Moreira, a dois passos do aeroporto. Estacionamento à porta.</p>
 
-        <dl class="contactos">
+        <ul class="contactos">
           <li>
-            <dt>Morada</dt>
-            <dd>
-              <a href="https://www.google.com/maps/search/?api=1&amp;query=Alameda+Padre+Alcino+Azevedo+Barbosa+6,+4470-580+Moreira" target="_blank" rel="noopener">
-                Alameda Padre Alcino Azevedo Barbosa 6<br>4470-580 Moreira, Maia
-              </a>
-            </dd>
+            <span class="rotulo">Morada</span>
+            <span><a href="https://www.google.com/maps/search/?api=1&amp;query=Alameda+Padre+Alcino+Azevedo+Barbosa+6,+4470-580+Moreira" target="_blank" rel="noopener">Alameda Padre Alcino Azevedo Barbosa 6<br>4470-580 Moreira, Maia</a></span>
           </li>
           <li>
-            <dt>Telefone</dt>
-            <dd><a href="tel:+351914230669">914 230 669</a></dd>
+            <span class="rotulo">Telefone</span>
+            <span><a href="tel:+351914230669">914 230 669</a></span>
           </li>
           <li>
-            <dt>Marcações</dt>
-            <dd><a href="#marcar">Marcar online</a></dd>
+            <span class="rotulo">Marcações</span>
+            <span><a href="marcar.html">Marcar online</a></span>
           </li>
-        </dl>
+        </ul>
       </div>
 
       <div class="revelar">
         <p class="sobrescrita">Horário</p>
         <ul class="horario" id="horario"></ul>
-        <div class="estado-loja" id="estado-loja">
-          <span class="ponto"></span>
-          <span id="estado-texto">A verificar…</span>
-        </div>
       </div>
     </div>
   </section>
@@ -336,17 +181,46 @@
 
 <footer class="rodape">
   <div class="envolve">
-    <div>
-      <p class="marca" style="margin-bottom:.6rem">Barbearia Garcia<small>Tradição e Qualidade</small></p>
-      <small>
-        Alameda Padre Alcino Azevedo Barbosa 6, 4470-580 Moreira, Maia · 914 230 669
-        <span class="aviso-demo">Site de demonstração — não é o site oficial da barbearia.</span>
-      </small>
+    <div class="rodape__grelha">
+      <div>
+        <p class="marca" style="margin-bottom:1rem">Barbearia Garcia<small>Tradição e Qualidade</small></p>
+        <p style="color:var(--texto-2);font-size:.92rem;margin:0">
+          Alameda Padre Alcino Azevedo Barbosa 6<br>
+          4470-580 Moreira, Maia
+        </p>
+        <p style="margin-top:1rem">
+          <a href="tel:+351914230669" style="color:var(--acento);font-weight:600;text-decoration:none">914 230 669</a>
+        </p>
+      </div>
+
+      <div>
+        <h4>Horário</h4>
+        <ul id="rodape-horario" class="rodape__horario"></ul>
+        <div class="estado-loja" id="estado-loja">
+          <span class="ponto"></span>
+          <span id="estado-texto">A verificar…</span>
+        </div>
+      </div>
+
+      <div>
+        <h4>Navegar</h4>
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="index.html#servicos">Serviços e preços</a></li>
+          <li><a href="index.html#equipa">A equipa</a></li>
+          <li><a href="marcar.html">Marcar a minha vez</a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&amp;query=Alameda+Padre+Alcino+Azevedo+Barbosa+6,+4470-580+Moreira" target="_blank" rel="noopener">Como chegar</a></li>
+        </ul>
+      </div>
     </div>
-    <small>&copy; <span id="ano"></span> Barbearia Garcia &amp; Tatuagem</small>
+
+    <div class="rodape__base">
+      <small>&copy; <span id="ano"></span> Barbearia Garcia &amp; Tatuagem</small>
+      <small class="aviso-demo">Site de demonstração — não é o site oficial da barbearia.</small>
+    </div>
   </div>
 </footer>
 
-<script type="module" src="assets/js/site.js"></script>
+<script type="module" src="assets/js/inicio.js"></script>
 </body>
 </html>
