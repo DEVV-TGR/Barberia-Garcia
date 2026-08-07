@@ -80,9 +80,15 @@ export default function Hero() {
           </BotaoLink>
         </Stack>
 
+        {/* Em telemóvel, grelha 2×2: com flex-wrap os quatro factos partiam
+            3 + 1 e o último ficava sozinho numa linha. */}
         <Box component="dl" sx={{
-          display: "flex", flexWrap: "wrap", gap: { xs: "1.5rem 2rem", md: "2.5rem" },
-          mt: 7, pt: 4, mb: 0, borderTop: "1px solid rgba(240,236,226,0.12)"
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(4, auto)" },
+          justifyContent: { sm: "start" },
+          gap: { xs: "1.4rem 1rem", sm: "2.5rem" },
+          mt: { xs: 5, md: 7 }, pt: 4, mb: 0,
+          borderTop: "1px solid rgba(240,236,226,0.12)"
         }}>
           {FACTOS.map((f) => (
             <Box key={f.r}>

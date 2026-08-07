@@ -24,50 +24,67 @@ function Seta() {
   );
 }
 
+/**
+ * Em ecrã largo é uma linha só. Em ecrã estreito são duas — nome em cima,
+ * duração, preço e botão lado a lado em baixo — para não sobrar espaço morto
+ * nem deixar o botão sozinho numa terceira linha.
+ */
 function Linha({ s }: { s: Servico }) {
+  const preco = (
+    <Typography sx={{
+      fontFamily: tituloFonte.style.fontFamily, fontSize: s.preco ? "1.4rem" : "0.85rem",
+      fontWeight: 600, color: s.preco ? "primary.main" : cores.texto3,
+      whiteSpace: "nowrap", lineHeight: 1,
+      textTransform: s.preco ? "none" : "uppercase"
+    }}>
+      {euros(s.preco)}
+    </Typography>
+  );
+
   return (
     <Box
       component="li"
+      data-servico-linha
       sx={{
-        display: "grid",
-        gridTemplateColumns: { xs: "1fr auto", sm: "1fr auto auto auto" },
-        alignItems: "center",
-        columnGap: 2.5, rowGap: 0.8,
         p: 2, bgcolor: "background.default",
         border: "1px solid transparent", borderRadius: "14px",
         transition: "border-color 200ms, transform 200ms",
-        "&:hover": { borderColor: cores.fundo4, transform: "translateX(4px)" }
+        "&:hover": { borderColor: cores.fundo4, transform: { md: "translateX(4px)" } },
+        display: "grid",
+        gap: 1.2,
+        gridTemplateColumns: { xs: "1fr", md: "1fr auto auto auto" },
+        alignItems: { md: "center" },
+        columnGap: { md: 2.5 }
       }}
     >
       <Typography sx={{
         fontFamily: tituloFonte.style.fontFamily, fontWeight: 500, fontSize: "1.15rem",
-        textTransform: "uppercase", gridColumn: { xs: "1 / -1", sm: "auto" }
+        textTransform: "uppercase", lineHeight: 1.15
       }}>
         {s.nome}
       </Typography>
 
-      <Typography variant="overline" sx={{ color: cores.texto3, whiteSpace: "nowrap" }}>
-        {duracao(s.minutos)}
-      </Typography>
-
-      <Typography sx={{
-        fontFamily: tituloFonte.style.fontFamily, fontSize: s.preco ? "1.4rem" : "0.85rem",
-        fontWeight: 600, color: s.preco ? "primary.main" : cores.texto3,
-        whiteSpace: "nowrap", textAlign: "right", minWidth: "3.4rem",
-        textTransform: s.preco ? "none" : "uppercase"
+      {/* Segunda linha em telemóvel; em ecrã largo dissolve-se na grelha */}
+      <Box sx={{
+        display: { xs: "flex", md: "contents" },
+        alignItems: "center", justifyContent: "space-between", gap: 1.5
       }}>
-        {euros(s.preco)}
-      </Typography>
+        <Typography variant="overline" sx={{ color: cores.texto3, whiteSpace: "nowrap" }}>
+          {duracao(s.minutos)}
+        </Typography>
 
-      <BotaoLink
-        href={`/marcar?servico=${encodeURIComponent(s.id)}`}
-        variant="outlined"
-        size="small"
-        aria-label={`Marcar ${s.nome}`}
-        sx={{ justifySelf: "end" }}
-      >
-        Marcar
-      </BotaoLink>
+        <Box sx={{ display: { xs: "flex", md: "contents" }, alignItems: "center", gap: 2 }}>
+          {preco}
+          <BotaoLink
+            href={`/marcar?servico=${encodeURIComponent(s.id)}`}
+            variant="outlined"
+            size="small"
+            aria-label={`Marcar ${s.nome}`}
+          >
+            Marcar
+          </BotaoLink>
+        </Box>
+      </Box>
     </Box>
   );
 }

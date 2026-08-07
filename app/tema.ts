@@ -51,6 +51,9 @@ const tema = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         "html, body": { overflowX: "clip" },
+        /* Saltar para uma âncora não pode deixar o título debaixo do
+           cabeçalho fixo: 54px de cabeçalho mais folga. */
+        "[id]": { scrollMarginTop: "88px" },
         // Grão sobre tudo, para as superfícies grandes não ficarem lisas demais
         "body::after": {
           content: '""',

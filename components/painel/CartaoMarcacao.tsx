@@ -5,7 +5,6 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import * as M from "@/lib/marcacoes";
 import type { EstadoMarcacao, Marcacao } from "@/lib/dados";
@@ -33,11 +32,11 @@ export default function CartaoMarcacao({ m, aoMudarEstado, aoAnular }: {
       data-testid="marcacao"
       data-estado={m.estado}
       sx={{
-        p: 2.2, borderRadius: "14px", borderLeft: `4px solid ${cor}`,
+        p: { xs: 1.8, md: 2.2 }, borderRadius: "14px", borderLeft: `4px solid ${cor}`,
         opacity: m.estado === "agendada" ? 1 : 0.72,
         display: "grid",
-        gridTemplateColumns: { xs: "5rem 1fr", md: "6rem 1fr auto" },
-        gap: { xs: 2, md: 3 },
+        gridTemplateColumns: { xs: "5.6rem 1fr", md: "6rem 1fr auto" },
+        gap: { xs: 1.4, md: 3 },
         alignItems: "start"
       }}
     >
@@ -50,6 +49,15 @@ export default function CartaoMarcacao({ m, aoMudarEstado, aoAnular }: {
         <Typography variant="caption" sx={{ color: cores.texto3, display: "block", mt: 0.2 }}>
           até {M.paraHoras(m.inicio + m.minutos)}
         </Typography>
+        {/* O selo acompanha a hora: em telemóvel poupa uma linha inteira.
+            O label do Chip corta com reticências por omissão — aqui não pode,
+            senão "Agendada" fica "Agend…". */}
+        <Chip label={M.ESTADOS[m.estado].rotulo} size="small" data-selo
+          sx={{
+            mt: 0.8, bgcolor: `${cor}22`, color: cor, fontWeight: 700, height: 22,
+            maxWidth: "100%",
+            "& .MuiChip-label": { px: 0.9, overflow: "visible", textOverflow: "clip" }
+          }} />
       </Box>
 
       <Box>
@@ -78,7 +86,7 @@ export default function CartaoMarcacao({ m, aoMudarEstado, aoAnular }: {
             {m.notas}
           </Typography>
         )}
-        <Stack direction="row" spacing={0.8} sx={{ alignItems: "center", mt: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mt: 1 }}>
           {b && (
             <Box sx={{ position: "relative", width: 22, height: 22, borderRadius: "50%", overflow: "hidden" }}>
               <Image src={b.foto} alt="" fill sizes="22px" style={{ objectFit: "cover" }} />
@@ -87,50 +95,49 @@ export default function CartaoMarcacao({ m, aoMudarEstado, aoAnular }: {
           <Typography variant="overline" sx={{ color: cores.texto3 }}>
             {M.nomeBarbeiro(m.barbeiroId)}
           </Typography>
-        </Stack>
+        </Box>
       </Box>
 
-      <Stack
-        spacing={0.8}
+      {/* Acções numa linha compacta: em telemóvel estavam empilhadas e cada
+          cartão passava dos 260px de altura. */}
+      <Box
         sx={{
           gridColumn: { xs: "1 / -1", md: "auto" },
-          alignItems: { xs: "flex-start", md: "flex-end" },
-          flexDirection: { xs: "row", md: "column" },
-          flexWrap: "wrap", gap: 0.8
+          display: "flex", flexWrap: "wrap", gap: 0.7,
+          justifyContent: { xs: "flex-start", md: "flex-end" },
+          alignItems: "flex-start",
+          "& .MuiButton-root": {
+            minWidth: 0, px: 1.4, py: 0.5, fontSize: 12,
+            borderColor: cores.fundo4, color: "text.secondary", flex: "none"
+          }
         }}
       >
-        <Chip label={M.ESTADOS[m.estado].rotulo} size="small"
-          sx={{ bgcolor: `${cor}22`, color: cor, fontWeight: 700 }} />
         {m.estado !== "concluida" && (
           <Button size="small" variant="outlined" data-accao="concluida"
             onClick={() => aoMudarEstado(m.id, "concluida")}
-            sx={{ borderColor: cores.fundo4, color: "text.secondary",
-                  "&:hover": { borderColor: cores.ok, color: cores.ok } }}>
+            sx={{ "&:hover": { borderColor: cores.ok, color: cores.ok } }}>
             Concluída
           </Button>
         )}
         {m.estado !== "falta" && (
           <Button size="small" variant="outlined" data-accao="falta"
             onClick={() => aoMudarEstado(m.id, "falta")}
-            sx={{ borderColor: cores.fundo4, color: "text.secondary",
-                  "&:hover": { borderColor: cores.erro, color: cores.erro } }}>
+            sx={{ "&:hover": { borderColor: cores.erro, color: cores.erro } }}>
             Faltou
           </Button>
         )}
         {m.estado !== "agendada" && (
           <Button size="small" variant="outlined" data-accao="agendada"
-            onClick={() => aoMudarEstado(m.id, "agendada")}
-            sx={{ borderColor: cores.fundo4, color: "text.secondary" }}>
+            onClick={() => aoMudarEstado(m.id, "agendada")}>
             Reabrir
           </Button>
         )}
         <Button size="small" variant="outlined" data-accao="anular"
           onClick={() => aoAnular(m.id)}
-          sx={{ borderColor: cores.fundo4, color: "text.secondary",
-                "&:hover": { borderColor: cores.erro, color: cores.erro } }}>
+          sx={{ "&:hover": { borderColor: cores.erro, color: cores.erro } }}>
           Anular
         </Button>
-      </Stack>
+      </Box>
     </Paper>
   );
 }

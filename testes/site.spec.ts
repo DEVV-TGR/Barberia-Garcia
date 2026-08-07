@@ -306,3 +306,94 @@ test("sem erros na consola", async ({ page }) => {
   }
   expect(erros).toEqual([]);
 });
+
+/* ── Correcções de telemóvel ─────────────────────────────────────────────────
+   Cada um destes fixa um problema medido nas capturas do iPhone.
+   ------------------------------------------------------------------------ */
+
+test.describe("layout no telemóvel", () => {
+  test.use({ viewport: { width: 393, height: 852 } });
+
+  test("o cabeçalho é opaco quando rolado", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => window.scrollTo(0, 900));
+    await page.waitForTimeout(600);
+
+    const fundo = await page.locator(".MuiAppBar-root")
+      .evaluate((e) => getComputedStyle(e).backgroundColor);
+
+    // Sem canal alfa, ou com alfa 1: nada do que está por baixo se lê através
+    const alfa = fundo.startsWith("rgba") ? parseFloat(fundo.split(",")[3]) : 1;
+    expect(alfa, `cabeçalho translúcido (${fundo})`).toBe(1);
+  });
+
+  test("saltar para uma âncora não esconde o título", async ({ page }) => {
+    await page.goto("/#servicos");
+    await page.waitForTimeout(1000);
+
+    const medida = await page.evaluate(() => {
+      const cab = document.querySelector(".MuiAppBar-root")!.getBoundingClientRect();
+      const titulo = document.querySelector("#servicos h2")!.getBoundingClientRect();
+      return { fundoCabecalho: cab.bottom, topoTitulo: titulo.top };
+    });
+    expect(medida.topoTitulo, "título por baixo do cabeçalho")
+      .toBeGreaterThanOrEqual(medida.fundoCabecalho);
+  });
+
+  test("os cartões de serviço são compactos", async ({ page }) => {
+    await page.goto("/#servicos");
+    await page.waitForTimeout(800);
+    const altura = await page.locator("[data-servico-linha]").first()
+      .evaluate((e) => e.getBoundingClientRect().height);
+    expect(altura, "cartão de serviço alto demais").toBeLessThan(120);
+  });
+
+  test("os cartões do painel são compactos", async ({ page }) => {
+    await page.goto("/painel");
+    await page.locator('[data-campo="pin"]').fill("1997");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await page.getByRole("button", { name: /Carregar agenda/ }).click();
+    await page.waitForTimeout(800);
+
+    const cartoes = page.getByTestId("marcacao");
+    if (await cartoes.count() === 0) return; // domingo: nada agendado
+
+    const altura = await cartoes.first().evaluate((e) => e.getBoundingClientRect().height);
+    expect(altura, "cartão do painel alto demais").toBeLessThan(190);
+  });
+
+  test("os factos do hero ficam equilibrados", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForTimeout(800);
+    const linhas = await page.locator("dl").first().evaluate((dl) => {
+      const tops = [...dl.children].map((e) => Math.round(e.getBoundingClientRect().top));
+      const porLinha = new Map<number, number>();
+      tops.forEach((t) => porLinha.set(t, (porLinha.get(t) ?? 0) + 1));
+      return [...porLinha.values()];
+    });
+    expect(linhas.length, "mais de duas linhas de factos").toBeLessThanOrEqual(2);
+    // 2+2, não 3+1
+    expect(Math.max(...linhas) - Math.min(...linhas), "linhas desequilibradas").toBeLessThanOrEqual(1);
+  });
+});
+
+test.describe("painel no telemóvel", () => {
+  test.use({ viewport: { width: 393, height: 852 } });
+
+  test("o selo de estado não fica cortado", async ({ page }) => {
+    await page.goto("/painel");
+    await page.locator('[data-campo="pin"]').fill("1997");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await page.getByRole("button", { name: /Carregar agenda/ }).click();
+    await page.waitForTimeout(800);
+
+    const selos = page.locator("[data-selo]");
+    if (await selos.count() === 0) return; // domingo
+
+    const corte = await selos.first().evaluate((e) => {
+      const rotulo = e.querySelector(".MuiChip-label") as HTMLElement;
+      return { visivel: rotulo.scrollWidth <= rotulo.clientWidth + 1, texto: rotulo.textContent };
+    });
+    expect(corte.visivel, `selo truncado: "${corte.texto}"`).toBe(true);
+  });
+});
