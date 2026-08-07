@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel — Barbearia Garcia</title>
+<meta name="description" content="Painel interno da Barbearia Garcia: agenda do dia, marcações por barbeiro.">
+<meta name="theme-color" content="#0d2a1f">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_PT">
+<meta property="og:title" content="Painel — Barbearia Garcia">
+<meta property="og:description" content="Painel interno da Barbearia Garcia: agenda do dia, marcações por barbeiro.">
+<meta property="og:image" content="assets/img/cover-1.jpg">
+<link rel="icon" href="assets/img/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/painel.css">
+</head>
+<body>
+
+<a class="botao botao--cheio salta" href="#principal">Saltar para o conteúdo</a>
+
+<header class="cabecalho" id="cabecalho">
+  <div class="envolve">
+    <a class="marca" href="index.html">
+      Barbearia Garcia
+      <small>Desde 1997</small>
+    </a>
+
+    <button class="abre-menu" id="abre-menu" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="menu" id="menu" aria-label="Navegação principal">
+      <a href="index.html">Início</a>
+      <a href="index.html#servicos">Serviços</a>
+      <a href="index.html#equipa">Equipa</a>
+      <a href="index.html#visitar">Visitar</a>
+      <a class="botao botao--cheio botao--pequeno" href="marcar.html">Marcar vez</a>
+    </nav>
+  </div>
+</header>
+
+<main id="principal" class="pagina-painel">
+  <div class="envolve">
+
+    <section class="entrada-painel" id="entrada-painel">
+      <div class="entrada-painel__caixa">
+        <p class="sobrescrita">Reservado à casa</p>
+        <h1 class="titulo-seccao">Painel da <em>barbearia</em></h1>
+        <p class="entrada">Introduza o código de acesso para ver a agenda.</p>
+
+        <form id="form-pin" class="entrada-painel__form">
+          <div class="campo">
+            <label for="pin">Código</label>
+            <input type="password" id="pin" inputmode="numeric" autocomplete="off"
+                   placeholder="••••" maxlength="8" required>
+            <span class="campo__erro" id="erro-pin"></span>
+          </div>
+          <button type="submit" class="botao botao--cheio">Entrar</button>
+        </form>
+
+        <p class="nota-demo" style="margin-top:2rem">
+          <span class="marca-i">i</span>
+          <span>
+            <strong>Demonstração.</strong> O código é <code>1997</code> e está
+            escrito no código-fonte — não é segurança a sério, é encenação para
+            se ver o painel. Num sistema verdadeiro isto seria validado num
+            servidor.
+          </span>
+        </p>
+      </div>
+    </section>
+
+    <section class="painel-agenda" id="painel-agenda" hidden>
+
+      <header class="painel-agenda__cabeca">
+        <div>
+          <p class="sobrescrita">Agenda</p>
+          <h1 class="titulo-seccao" style="margin-bottom:.3rem">Marcações do dia</h1>
+          <p class="painel__nota" id="dia-extenso" style="margin:0"></p>
+        </div>
+        <button type="button" class="botao botao--discreto botao--pequeno" id="sair">Sair</button>
+      </header>
+
+      <div class="barra-dia">
+        <button type="button" class="seta" id="dia-anterior" aria-label="Dia anterior">&#8249;</button>
+        <input type="date" id="selector-dia" class="selector-dia" aria-label="Escolher dia">
+        <button type="button" class="seta" id="dia-seguinte" aria-label="Dia seguinte">&#8250;</button>
+        <button type="button" class="botao botao--discreto botao--pequeno" id="ir-hoje">Hoje</button>
+      </div>
+
+      <div class="filtros" id="filtros" role="group" aria-label="Filtrar por barbeiro"></div>
+
+      <dl class="resumo-dia" id="resumo-dia"></dl>
+
+      <div id="agenda"></div>
+
+      <div class="ferramentas">
+        <button type="button" class="botao botao--discreto botao--pequeno" id="carregar-exemplo">
+          Carregar agenda de exemplo
+        </button>
+        <button type="button" class="botao botao--discreto botao--pequeno" id="limpar-tudo">
+          Limpar tudo
+        </button>
+      </div>
+
+      <p class="nota-demo" style="margin-top:2rem">
+        <span class="marca-i">i</span>
+        <span>
+          <strong>Só vê o que foi marcado neste navegador.</strong> Sem servidor,
+          as marcações não viajam entre dispositivos: o que um cliente marcar no
+          telemóvel dele não aparece aqui. Use o botão de exemplo para ver a
+          agenda preenchida.
+        </span>
+      </p>
+
+    </section>
+
+  </div>
+</main>
+
+<footer class="rodape">
+  <div class="envolve">
+    <div class="rodape__grelha">
+      <div>
+        <p class="marca" style="margin-bottom:1rem">Barbearia Garcia<small>Tradição e Qualidade</small></p>
+        <p style="color:var(--texto-2);font-size:.92rem;margin:0">
+          Alameda Padre Alcino Azevedo Barbosa 6<br>
+          4470-580 Moreira, Maia
+        </p>
+        <p style="margin-top:1rem">
+          <a href="tel:+351914230669" style="color:var(--acento);font-weight:600;text-decoration:none">914 230 669</a>
+        </p>
+      </div>
+
+      <div>
+        <h4>Horário</h4>
+        <ul id="rodape-horario" class="rodape__horario"></ul>
+        <div class="estado-loja" id="estado-loja">
+          <span class="ponto"></span>
+          <span id="estado-texto">A verificar…</span>
+        </div>
+      </div>
+
+      <div>
+        <h4>Navegar</h4>
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="index.html#servicos">Serviços e preços</a></li>
+          <li><a href="index.html#equipa">A equipa</a></li>
+          <li><a href="marcar.html">Marcar a minha vez</a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&amp;query=Alameda+Padre+Alcino+Azevedo+Barbosa+6,+4470-580+Moreira" target="_blank" rel="noopener">Como chegar</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rodape__base">
+      <small>&copy; <span id="ano"></span> Barbearia Garcia &amp; Tatuagem</small>
+      <small class="aviso-demo">Site de demonstração — não é o site oficial da barbearia.</small>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="assets/js/painel.js"></script>
+</body>
+</html>
