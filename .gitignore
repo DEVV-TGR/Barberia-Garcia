@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# claude code
+# worktrees são cópias de trabalho descartáveis; settings.local.json é pessoal.
+# As skills SÃO versionadas aqui (ficheiros reais, não symlinks), para o repo
+# funcionar noutra máquina sem depender de ~/.agents/skills.
+.claude/worktrees/
+.claude/settings.local.json
