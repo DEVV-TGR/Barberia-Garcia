@@ -81,8 +81,7 @@ await p.locator("#btn-avancar").click(); await p.waitForTimeout(900);
 
 console.log("\n── Confirmação e calendário ──");
 ok(await p.locator('[data-painel="5"]').isVisible(), "chegou à confirmação");
-const cod = (await p.locator("#codigo-reserva").textContent()).trim();
-ok(/^BG-[A-Z2-9]{4}$/.test(cod), `código ${cod}`);
+ok(await p.locator("#codigo-reserva").count() === 0, "não há código de reserva a mostrar");
 ok(await barra.isHidden(), "barra desaparece na confirmação");
 const gcal = await p.locator("#google-agenda").getAttribute("href");
 ok(gcal.startsWith("https://calendar.google.com/"), "ligação Google Agenda preenchida");
@@ -92,7 +91,7 @@ const [dl] = await Promise.all([
   p.locator("#guardar-ics").click()
 ]);
 const nomeIcs = dl.suggestedFilename();
-ok(nomeIcs.endsWith(".ics") && nomeIcs.includes(cod), `descarregou ${nomeIcs}`);
+ok(nomeIcs.endsWith(".ics") && nomeIcs.startsWith("barbearia-garcia-"), `descarregou ${nomeIcs}`);
 const caminho = await dl.path();
 const conteudo = (await import("fs")).readFileSync(caminho, "utf8");
 ok(conteudo.startsWith("BEGIN:VCALENDAR"), "ICS válido");
@@ -119,6 +118,7 @@ const agenda = await p.locator("#agenda").textContent();
 ok(agenda.includes("Gonçalo Silva"), "a marcação aparece no painel");
 ok(agenda.includes("Corte Degradé"), "mostra o serviço");
 ok(agenda.includes("914230669"), "mostra o telefone");
+ok(!agenda.includes("BG-"), "painel sem código de reserva");
 ok(agenda.includes("Máquina 2 nos lados"), "mostra as observações");
 ok(agenda.includes(horaTxt), `mostra a hora ${horaTxt}`);
 ok((await p.locator("#resumo-dia").textContent()).includes("€"), "resumo com receita");
@@ -147,6 +147,117 @@ await p.goto(base + "/marcar.html?servico=corte-degrade", { waitUntil: "networki
 await p.waitForTimeout(700);
 await p.screenshot({ path: "/tmp/bg-mobile-marcar.png" });
 
+
+
+console.log("\n── Grupos colapsáveis ──");
+await p.setViewportSize({ width: 1440, height: 950 });
+await p.goto(`${base}/marcar.html`, { waitUntil: "networkidle" });
+await p.waitForTimeout(700);
+const grupos = p.locator("details.grupo");
+ok(await grupos.count() === 2, `${await grupos.count()} grupos colapsáveis (Barbearia e Tatuagem)`);
+const barbearia = grupos.first();
+ok(await barbearia.evaluate(e => e.open), "abertos por omissão");
+ok(await barbearia.locator(".opcao").first().isVisible(), "serviços visíveis com o grupo aberto");
+ok((await barbearia.locator(".grupo__conta").textContent()) === "18", "mostra a contagem (18 na barbearia)");
+await barbearia.locator("summary").click();
+await p.waitForTimeout(300);
+ok(!await barbearia.evaluate(e => e.open), "fecha ao clicar");
+ok(!await barbearia.locator(".opcao").first().isVisible(), "serviços escondidos");
+ok(await grupos.nth(1).isVisible(), "a tatuagem fica logo à vista com a barbearia fechada");
+await barbearia.locator("summary").click(); await p.waitForTimeout(300);
+ok(await barbearia.evaluate(e => e.open), "reabre");
+
+console.log("\n── Barra amarela ──");
+await p.locator('label.opcao:has(input[value="corte-degrade"])').first().click();
+await p.waitForTimeout(400);
+const cores = await p.evaluate(() => {
+  const bar = document.querySelector("#barra-accao");
+  const t = document.querySelector("#barra-resumo strong");
+  const bt = document.querySelector("#btn-avancar");
+  return { fundo: getComputedStyle(bar).backgroundColor,
+           titulo: getComputedStyle(t).color,
+           botao: getComputedStyle(bt).backgroundColor };
+});
+ok(cores.fundo === "rgb(242, 183, 5)", `faixa amarela (${cores.fundo})`);
+ok(cores.titulo === "rgb(13, 42, 31)", `texto verde escuro sobre amarelo (${cores.titulo})`);
+ok(cores.botao !== "rgb(242, 183, 5)", `botão contrasta com a faixa (${cores.botao})`);
+
+console.log("\n── Fotos a cores ──");
+await p.goto(`${base}/index.html`, { waitUntil: "networkidle" });
+await p.waitForTimeout(900);
+const filtros = await p.evaluate(() => {
+  const alvos = [".hero__fundo img", ".casa__retrato img", ".barbeiro__foto img", ".galeria__grelha img"];
+  return alvos.map(sel => {
+    const el = document.querySelector(sel);
+    return { sel, filtro: el ? getComputedStyle(el).filter : "sem elemento" };
+  });
+});
+for (const f of filtros) {
+  ok(!/grayscale\((?!0\))|sepia\((?!0\))|hue-rotate\((?!0deg\))/.test(f.filtro),
+     `${f.sel}: sem dessaturação (${f.filtro})`);
+}
+const colunas = await p.locator(".galeria__grelha").evaluate(e => getComputedStyle(e).columnCount);
+ok(colunas === "3", `galeria em mosaico de ${colunas} colunas`);
+
+
+console.log("\n── Menu em cartão (telemóvel) ──");
+await p.setViewportSize({ width: 390, height: 844 });
+await p.goto(`${base}/index.html`, { waitUntil: "networkidle" });
+await p.waitForTimeout(900);
+const menu = p.locator("#menu"), botao = p.locator("#abre-menu"), veu = p.locator(".menu-veu");
+ok(await menu.isHidden(), "cartão escondido de início");
+ok(await veu.count() === 1, "véu criado");
+ok(await veu.isHidden(), "véu escondido de início");
+
+await botao.click(); await p.waitForTimeout(450);
+ok(await menu.isVisible(), "cartão abre");
+ok(await veu.isVisible(), "véu aparece");
+
+const est = await menu.evaluate(e => { const c=getComputedStyle(e), r=e.getBoundingClientRect();
+  return { bg:c.backgroundColor, pos:c.position, sombra:c.boxShadow,
+           raio:c.borderRadius, cx:+(r.left+r.width/2).toFixed(0), cy:+(r.top+r.height/2).toFixed(0),
+           w:+r.width.toFixed(0) }; });
+ok(est.bg === "rgb(242, 183, 5)", `cartão amarelo (${est.bg})`);
+ok(est.pos === "fixed", "fixo ao ecrã");
+ok(est.sombra !== "none" && est.sombra.length > 10, "tem sombra");
+ok(parseFloat(est.raio) > 15, `cantos arredondados (${est.raio})`);
+ok(Math.abs(est.cx - 195) <= 3, `centrado na horizontal (centro em ${est.cx}, ecrã 390)`);
+ok(Math.abs(est.cy - 422) <= 12, `centrado na vertical (centro em ${est.cy}, ecrã 844)`);
+ok(est.w < 390, `não ocupa o ecrã todo (${est.w}px de 390)`);
+
+const corLink = await p.locator("#menu a:not(.botao)").first().evaluate(e => getComputedStyle(e).color);
+ok(corLink === "rgb(13, 42, 31)", `links em verde escuro sobre amarelo (${corLink})`);
+ok(await p.locator("#menu a").count() === 5, "cinco entradas no cartão");
+const focado = await p.evaluate(() => document.activeElement.textContent.trim());
+ok(focado.length > 0, `foco entra no cartão ("${focado}")`);
+ok(await p.evaluate(() => getComputedStyle(document.body).overflow) === "hidden", "página não rola por trás");
+await p.screenshot({ path: "/tmp/bg-menu.png" });
+
+// Fechar clicando no véu
+await veu.click({ position: { x: 195, y: 60 } }); await p.waitForTimeout(450);   // zona do cabeçalho
+ok(await menu.isHidden(), "fecha ao clicar fora");
+ok(await p.evaluate(() => getComputedStyle(document.body).overflow) !== "hidden", "scroll restaurado");
+
+// Escape
+await botao.click(); await p.waitForTimeout(400);
+await p.keyboard.press("Escape"); await p.waitForTimeout(400);
+ok(await menu.isHidden(), "Escape fecha");
+ok(await p.evaluate(() => document.activeElement.id) === "abre-menu", "foco volta ao botão");
+
+// Foco preso
+await botao.click(); await p.waitForTimeout(400);
+for (let i=0;i<7;i++) await p.keyboard.press("Tab");
+const dentro = await p.evaluate(() => !!document.activeElement.closest("#menu"));
+ok(dentro, "o tabulador não sai do cartão");
+await p.keyboard.press("Escape"); await p.waitForTimeout(300);
+
+// Navegar fecha
+await botao.click(); await p.waitForTimeout(400);
+await p.locator('#menu a[href="marcar.html"]').click();
+await p.waitForLoadState("networkidle"); await p.waitForTimeout(600);
+ok(p.url().includes("marcar.html"), "navega a partir do cartão");
+ok(await p.locator("#menu").isHidden(), "cartão fechado na página nova");
+await p.setViewportSize({ width: 1440, height: 950 });
 
 console.log("\n── Texto invisível (cor igual ao fundo) ──");
 for (const pag of ["index", "marcar", "painel"]) {

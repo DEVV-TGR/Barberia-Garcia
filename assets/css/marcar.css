@@ -127,11 +127,10 @@
   width: 3rem; height: 3rem;
   border-radius: 50%;
   object-fit: cover;
-  filter: grayscale(0.9) brightness(0.88);
   border: 2px solid var(--fundo-3);
-  transition: filter var(--rapida), border-color var(--rapida);
+  transition: border-color var(--rapida);
 }
-.opcao input:checked + .opcao__corpo .opcao__retrato { filter: none; border-color: var(--acento); }
+.opcao input:checked + .opcao__corpo .opcao__retrato { border-color: var(--acento); }
 .opcao__retrato--qualquer {
   display: grid;
   place-items: center;
@@ -140,18 +139,23 @@
   color: var(--acento);
 }
 
-/* Destaques dos mais pedidos */
+/* Faixa "Mais pedido": exactamente a mesma medida onde quer que apareça —
+   nos atalhos do topo e nas entradas da carta. */
 .faixa-destaque {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--fundo);
   background: var(--acento);
+  border: 1.5px solid var(--acento);
   border-radius: var(--raio-pill);
-  padding: 0.15rem 0.6rem;
-  display: inline-block;
-  margin-bottom: 0.45rem;
+  padding: 0 0.7rem;
+  height: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 0.4rem;
 }
 
 .grupo-titulo {
@@ -166,8 +170,50 @@
   align-items: center;
   gap: 1rem;
 }
-.grupo-titulo::after { content: ""; height: 1px; flex: 1; background: var(--fundo-3); }
+.grupo-titulo > span:first-child + .grupo__conta { margin-left: 0; }
+.grupo-titulo::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--fundo-3);
+  order: 1;
+}
+.grupo-titulo .grupo__conta { order: 2; }
+.grupo-titulo .grupo__seta { order: 3; }
 .grupo-titulo:first-child { margin-top: 0; }
+
+/* ── Grupos colapsáveis ──────────────────────────────────────────────────── */
+
+.grupo { margin-top: 2.2rem; }
+.grupo:first-child { margin-top: 0; }
+
+.grupo summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 1rem;
+}
+.grupo summary::-webkit-details-marker { display: none; }
+.grupo summary:hover { color: var(--acento-2); }
+.grupo summary:focus-visible { outline: 2px solid var(--acento); outline-offset: 4px; border-radius: 4px; }
+
+.grupo__conta {
+  flex: none;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--fundo);
+  background: var(--acento);
+  border-radius: var(--raio-pill);
+  min-width: 1.4rem;
+  height: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
+  letter-spacing: 0;
+}
+.grupo__seta { flex: none; transition: transform var(--rapida); }
+.grupo[open] .grupo__seta { transform: rotate(180deg); }
 
 /* ── Calendário ──────────────────────────────────────────────────────────── */
 
@@ -351,15 +397,15 @@
 
 /* ── Barra de acção fixa ─────────────────────────────────────────────────── */
 
+/* A faixa inteira em amarelo: é a barra que tem de saltar à vista, não só o
+   texto lá dentro. Sobre amarelo, tudo o que é texto passa a verde escuro. */
 .barra-accao {
   position: fixed;
   left: 0; right: 0; bottom: 0;
   z-index: 80;
   padding: 0.9rem 1.25rem calc(0.9rem + env(safe-area-inset-bottom, 0px));
-  background: rgba(18, 55, 38, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--fundo-4);
+  background: var(--acento);
+  box-shadow: 0 -14px 34px -18px rgba(0, 0, 0, 0.85);
   animation: subir 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .barra-accao[hidden] { display: none; }
@@ -380,23 +426,24 @@
   width: 2.9rem; height: 2.9rem;
   flex: none;
   border-radius: 50%;
-  border: 1.5px solid var(--fundo-4);
+  border: 2px solid rgba(13, 42, 31, 0.35);
   background: transparent;
-  color: var(--texto-2);
+  color: var(--fundo);
   cursor: pointer;
   display: grid;
   place-items: center;
   transition: all var(--rapida);
 }
-.barra-accao__atras:hover { border-color: var(--acento); color: var(--acento); }
+.barra-accao__atras:hover { border-color: var(--fundo); background: rgba(13, 42, 31, 0.1); }
 .barra-accao__atras[hidden] { display: none; }
 
 .barra-accao__resumo { flex: 1; min-width: 0; line-height: 1.35; }
 .barra-accao__resumo strong {
   display: block;
   font-family: var(--titulo);
-  font-weight: 500;
-  font-size: 1rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--fundo);
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -404,15 +451,33 @@
 }
 .barra-accao__resumo span {
   font-size: 0.78rem;
-  color: var(--texto-2);
+  color: rgba(13, 42, 31, 0.72);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
 }
-.barra-accao__resumo em { font-style: normal; color: var(--acento); font-weight: 600; }
+.barra-accao__resumo em { font-style: normal; color: var(--fundo); font-weight: 700; }
 
-.barra-accao .botao { flex: none; }
+/* Sobre amarelo, o botão inverte: verde escuro sólido. */
+.barra-accao .botao {
+  flex: none;
+  background: var(--fundo);
+  border-color: var(--fundo);
+  color: var(--acento);
+}
+.barra-accao .botao:hover:not(:disabled),
+.barra-accao .botao:focus-visible:not(:disabled) {
+  background: var(--fundo-3);
+  border-color: var(--fundo-3);
+  color: var(--acento-2);
+}
+.barra-accao .botao:disabled {
+  background: rgba(13, 42, 31, 0.18);
+  border-color: transparent;
+  color: rgba(13, 42, 31, 0.55);
+}
+.barra-accao:focus-within .botao:focus-visible { outline-color: var(--fundo); }
 
 /* ── Confirmação ─────────────────────────────────────────────────────────── */
 
@@ -434,14 +499,6 @@
 .confirmado__selo svg path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: risco 550ms 260ms ease forwards; }
 @keyframes risco { to { stroke-dashoffset: 0; } }
 
-.codigo-reserva {
-  font-family: var(--titulo);
-  font-size: 2.1rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--acento);
-  margin: 1rem 0 0.3rem;
-}
 .confirmado .resumo { max-width: 26rem; margin: 1.5rem auto 0; text-align: left; }
 .confirmado__accoes {
   display: flex;

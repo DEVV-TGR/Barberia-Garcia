@@ -158,14 +158,6 @@ export function diaTemVaga(chave, servico, barbeiroId, agora = new Date()) {
 
 /* ── Criar e anular ──────────────────────────────────────────────────────── */
 
-const ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem I, O, 0, 1
-
-function gerarCodigo() {
-  let c = "";
-  for (let i = 0; i < 4; i++) c += ALFABETO[Math.floor(Math.random() * ALFABETO.length)];
-  return `BG-${c}`;
-}
-
 export function criarMarcacao({ servicoId, barbeiroId, data, inicio, nome, telemovel, notas }) {
   const servico = servicoPorId(servicoId);
   if (!servico) return { erro: "Serviço desconhecido." };
@@ -181,7 +173,6 @@ export function criarMarcacao({ servicoId, barbeiroId, data, inicio, nome, telem
 
   const marcacao = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    codigo: gerarCodigo(),
     servicoId, minutos: servico.minutos, preco: servico.preco,
     barbeiroId: atribuido,
     escolhaBarbeiro: barbeiroId,
@@ -266,7 +257,6 @@ export function semearAgenda(agora = new Date()) {
 
       inventadas.push({
         id: `seed-${i}-${j}`,
-        codigo: "—",
         servicoId: servico.id, minutos: servico.minutos, preco: servico.preco,
         barbeiroId: barbeiro.id, escolhaBarbeiro: barbeiro.id,
         data: chave, inicio,
@@ -391,7 +381,6 @@ export function paraICS(marcacao, servico) {
     `Barbeiro: ${nomeBarbeiro(marcacao.barbeiroId)}`,
     `Serviço: ${servico.nome} (${marcacao.minutos} min)`,
     marcacao.preco ? `Valor: ${marcacao.preco} EUR` : null,
-    `Código: ${marcacao.codigo}`,
     `Telefone: ${CASA.telefone}`
   ].filter(Boolean).join("\n");
 
@@ -428,7 +417,7 @@ export function ligacaoGoogleAgenda(marcacao, servico) {
     action: "TEMPLATE",
     text: `${servico.nome} — ${CASA.nome}`,
     dates: `${carimboUTC(inicio)}/${carimboUTC(fim)}`,
-    details: `Barbeiro: ${nomeBarbeiro(marcacao.barbeiroId)}\nCódigo: ${marcacao.codigo}`,
+    details: `Barbeiro: ${nomeBarbeiro(marcacao.barbeiroId)}`,
     location: `${CASA.morada}, ${CASA.codigoPostal} ${CASA.localidade}`
   });
   return `https://calendar.google.com/calendar/render?${p}`;

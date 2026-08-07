@@ -22,6 +22,8 @@ em Moreira, Maia. Estático, sem build, sem dependências em produção.
 - **Marcar a partir de um serviço**: cada linha da carta liga a
   `marcar.html?servico=<id>`, que abre já com o serviço escolhido.
 - **Guardar no calendário**: ficheiro `.ics` ou ligação para o Google Agenda.
+- **Grupos colapsáveis**: a barbearia tem 18 serviços — fecha-se para chegar
+  depressa à tatuagem.
 - **Painel**: agenda por dia, filtro por barbeiro, resumo de ocupação e receita,
   e estados (agendada / concluída / faltou).
 - Os 19 serviços reais com os preços praticados, os três barbeiros e o horário
@@ -72,14 +74,15 @@ via `file://`.
 ## Testes
 
 ```bash
-npm test           # 67 testes do motor + contraste da paleta, sem dependências
+npm test           # 69 testes do motor + contraste da paleta, sem dependências
 
 # end-to-end: precisa do servidor a correr e de playwright
 npm install playwright && npx playwright install chromium
-npm run test:e2e   # 52 verificações nas três páginas
+npm run test:e2e   # 92 verificações nas três páginas
 ```
 
-O `e2e` cobre navegação, ligação directa por serviço, a barra de acção, o fluxo
+O `e2e` cobre navegação, ligação directa por serviço, a barra de acção, os
+grupos colapsáveis, o menu em cartão no telemóvel (foco, teclado, fecho), o fluxo
 completo de marcação, o ficheiro `.ics`, o painel com estados e filtros, o
 comportamento a 390px e a ausência de texto invisível ou erros na consola.
 
@@ -114,6 +117,13 @@ e amarelo brasileiros, mas com o amarelo a pontuar em vez de dominar.
 [Oswald](https://fonts.google.com/specimen/Oswald) condensada nos títulos, à
 maneira dos letreiros de barbearia, e
 [Figtree](https://fonts.google.com/specimen/Figtree) no texto corrido. Botões em
-pill e cantos arredondados em todo o lado. As fotografias levam um duotone verde
-para assentarem na paleta. Todas as combinações de cor são verificadas contra o
-WCAG em `testes/contraste.test.mjs`.
+pill e cantos arredondados em todo o lado. As fotografias ficam com a cor
+original — só o fundo do hero é escurecido, o suficiente para o título se ler por
+cima. A galeria é um mosaico por colunas, porque as fotos da casa são umas em
+paisagem e outras em retrato e uma grelha de altura fixa cortava-as a meio.
+
+A barra de acção é uma faixa amarela: é o elemento que tem de saltar à vista, e
+sobre amarelo todo o texto passa a verde escuro. No telemóvel a navegação abre
+num cartão amarelo ao centro do ecrã, com véu por trás, foco preso lá dentro e
+fecho por Escape ou toque fora. Todas as combinações de cor são
+verificadas contra o WCAG em `testes/contraste.test.mjs`.
