@@ -70,8 +70,10 @@ export default function Cabecalho() {
         position="fixed"
         elevation={0}
         sx={{
-          bgcolor: rolado ? "rgba(13, 42, 31, 0.92)" : "transparent",
-          backdropFilter: rolado ? "blur(14px)" : "none",
+          // Opaco a sério quando rolado. Antes era 92 % com backdrop-filter, e
+          // o Safari no iOS não aplica o desfoque de forma fiável num AppBar
+          // fixo: o que passava por baixo lia-se através do cabeçalho.
+          bgcolor: rolado ? cores.fundo : "transparent",
           boxShadow: rolado ? `0 1px 0 ${cores.fundo3}` : "none",
           transition: "background 420ms, box-shadow 420ms, padding 420ms",
           py: rolado ? 0.5 : 1.2,

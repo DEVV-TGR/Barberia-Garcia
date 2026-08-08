@@ -8,7 +8,7 @@ import { cores, tituloFonte } from "@/app/design";
 
 export default function Casa() {
   return (
-    <Box component="section" id="casa" sx={{ py: { xs: 8, md: 12 } }}>
+    <Box component="section" id="casa" sx={{ py: { xs: 6, md: 12 } }}>
       <Envolve sx={{
         display: "grid",
         gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
