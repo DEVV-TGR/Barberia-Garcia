@@ -172,16 +172,18 @@ test.describe("painel", () => {
     await page.getByRole("button", { name: "Entrar" }).click();
     await expect(page.getByTestId("agenda")).toBeVisible();
 
-    // Navegar até ao dia da marcação
-    const hoje = new Date();
-    for (let i = 0; i < 40; i++) {
-      const texto = await page.getByTestId("agenda").textContent();
-      if (texto?.includes("Rui Pereira")) break;
-      await page.getByLabel("Dia seguinte").click();
-      await page.waitForTimeout(80);
-    }
+    // Ir directamente ao dia da marcação. Percorrer dia a dia com esperas
+    // fixas falhava de vez em quando com os testes em paralelo.
+    const diaMarcado = await page.evaluate(() => {
+      const bruto = localStorage.getItem("barbearia-garcia:marcacoes:v1") ?? "[]";
+      const minhas = (JSON.parse(bruto) as { minha: boolean; data: string }[]).filter((m) => m.minha);
+      return minhas.at(-1)?.data ?? "";
+    });
+    expect(diaMarcado, "marcação não ficou guardada").toBeTruthy();
     expect(numeroDia).toBeTruthy();
-    expect(hoje).toBeTruthy();
+
+    await page.locator('[data-campo="dia"]').fill(diaMarcado);
+    await page.waitForTimeout(300);
 
     const cartao = page.getByTestId("marcacao").filter({ hasText: "Rui Pereira" });
     await expect(cartao).toHaveCount(1);
@@ -494,4 +496,35 @@ test.describe("botões do hero", () => {
         .not.toMatch(/rgba?\([^)]*,\s*0\)$/);
     });
   }
+});
+
+test("o conteúdo dos cartões encosta à esquerda", async ({ page }) => {
+  await page.goto("/marcar");
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(600);
+
+  const medir = () => page.evaluate(() => {
+    const fora: string[] = [];
+    document.querySelectorAll("[data-atalho], [data-servico], [data-barbeiro]").forEach((el) => {
+      const r = el.getBoundingClientRect();
+      const primeiro = el.firstElementChild;
+      if (!primeiro || r.width === 0) return;
+      const cs = getComputedStyle(el);
+      const recuo = primeiro.getBoundingClientRect().left - r.left;
+      const esperado = parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
+      // O ButtonBase traz justify-content: center; com colunas implícitas isso
+      // centrava a grelha e o conteúdo aparecia indentado dentro do cartão.
+      if (Math.abs(recuo - esperado) > 1.5) {
+        fora.push(`${el.tagName} recuo ${recuo.toFixed(0)}px, esperado ${esperado.toFixed(0)}px`);
+      }
+    });
+    return fora;
+  });
+
+  expect(await medir(), "conteúdo centrado no passo do serviço").toEqual([]);
+
+  await page.locator("[data-atalho]").first().click();
+  await page.getByRole("button", { name: "Avançar" }).click();
+  await page.waitForTimeout(600);
+  expect(await medir(), "conteúdo centrado no passo do barbeiro").toEqual([]);
 });
