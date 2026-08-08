@@ -1,12 +1,36 @@
 {
   "name": "barbearia-garcia",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "Site de demonstração da Barbearia Garcia & Tatuagem, com marcações funcionais",
   "scripts": {
-    "start": "python3 -m http.server 8080",
-    "test": "node testes/marcacoes.test.mjs && node testes/contraste.test.mjs",
-    "test:e2e": "node testes/e2e.mjs"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "verificar": "tsc --noEmit"
   },
-  "type": "module"
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^9.3.1",
+    "@mui/material-nextjs": "^9.3.0",
+    "@mui/x-date-pickers": "^9.11.0",
+    "date-fns": "^4.1.0",
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5",
+    "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
 }
