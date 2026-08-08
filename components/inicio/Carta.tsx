@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -14,6 +15,10 @@ import TituloSeccao from "../TituloSeccao";
 import { SERVICOS, type Servico } from "@/lib/dados";
 import { euros, duracao } from "@/lib/formatar";
 import { cores, tituloFonte } from "@/app/design";
+import { CURVA, TEMPO, escada, tempoPainel } from "@/lib/movimento";
+
+/** Os grupos não mudam entre renders: calculados uma vez, fora do componente. */
+const GRUPOS = [...new Set(SERVICOS.map((s) => s.grupo))];
 
 function Seta() {
   return (
@@ -29,7 +34,7 @@ function Seta() {
  * duração, preço e botão lado a lado em baixo — para não sobrar espaço morto
  * nem deixar o botão sozinho numa terceira linha.
  */
-function Linha({ s }: { s: Servico }) {
+function Linha({ s, aberto, ordem }: { s: Servico; aberto: boolean; ordem: number }) {
   const preco = (
     <Typography sx={{
       fontFamily: tituloFonte.style.fontFamily, fontSize: s.preco ? "1.4rem" : "0.85rem",
@@ -48,8 +53,23 @@ function Linha({ s }: { s: Servico }) {
       sx={{
         p: 2, bgcolor: "background.default",
         border: "1px solid transparent", borderRadius: "14px",
-        transition: "border-color 200ms, transform 200ms",
-        "&:hover": { borderColor: cores.fundo4, transform: { md: "translateX(4px)" } },
+
+        /* A abrir, as linhas sobem em escada, atrás do painel a crescer; a
+           fechar caem todas ao mesmo tempo e depressa, senão a última ainda se
+           via depois de o painel já ter encolhido. */
+        opacity: aberto ? 1 : 0,
+        transform: aberto ? "none" : "translate3d(0, 10px, 0)",
+        transition: [
+          `opacity ${aberto ? TEMPO.medio : TEMPO.micro}ms ${CURVA.entrada} ${aberto ? escada(ordem, 26, 10) : "0ms"}`,
+          `transform ${aberto ? TEMPO.medio : TEMPO.micro}ms ${CURVA.entrada} ${aberto ? escada(ordem, 26, 10) : "0ms"}`,
+          `border-color ${TEMPO.curto}ms ${CURVA.suave}`,
+          `background-color ${TEMPO.curto}ms ${CURVA.suave}`
+        ].join(", "),
+
+        "&:hover": {
+          borderColor: cores.fundo4,
+          transform: { md: "translate3d(4px, 0, 0)" }
+        },
         display: "grid",
         gap: 1.2,
         gridTemplateColumns: { xs: "1fr", md: "1fr auto auto auto" },
@@ -90,7 +110,15 @@ function Linha({ s }: { s: Servico }) {
 }
 
 export default function Carta() {
-  const grupos = [...new Set(SERVICOS.map((s) => s.grupo))];
+  /* Controlado, e não `defaultExpanded`, porque as linhas precisam de saber se
+     o grupo está aberto para entrarem em escada. Guardam-se os fechados: assim
+     a carta abre inteira, que é como se lê melhor. */
+  const [fechados, setFechados] = useState<readonly string[]>([]);
+
+  const alternar = (grupo: string) => (_e: React.SyntheticEvent, aAbrir: boolean) =>
+    setFechados((anteriores) =>
+      aAbrir ? anteriores.filter((g) => g !== grupo) : [...anteriores, grupo]
+    );
 
   return (
     <Box component="section" id="servicos" sx={{ py: { xs: 6, md: 12 }, bgcolor: "background.paper" }}>
@@ -101,20 +129,42 @@ export default function Carta() {
           Clique em marcar e vai direito ao passo seguinte, já com o serviço escolhido.
         </Typography>
 
-        {grupos.map((g) => {
+        {GRUPOS.map((g) => {
           const doGrupo = SERVICOS.filter((s) => s.grupo === g);
+          const aberto = !fechados.includes(g);
+
           return (
-            <Accordion key={g} defaultExpanded sx={{ mb: 3 }}>
+            <Accordion
+              key={g}
+              expanded={aberto}
+              onChange={alternar(g)}
+              slotProps={{
+                transition: {
+                  timeout: tempoPainel(doGrupo.length),
+                  unmountOnExit: false,
+                  easing: { enter: CURVA.painel, exit: CURVA.dobrar }
+                }
+              }}
+              sx={{ mb: 3 }}
+            >
               <AccordionSummary expandIcon={<Seta />} sx={{ px: 0 }}>
                 <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%", pr: 2 }}>
                   <Typography variant="overline" sx={{ color: "primary.main" }}>{g}</Typography>
                   <Chip label={doGrupo.length} size="small" color="primary" />
-                  <Box sx={{ flex: 1, height: "1px", bgcolor: cores.fundo3 }} />
+                  {/* O traço recolhe-se para o lado do título quando o grupo
+                      fecha — dá ao fecho um segundo sinal, além da seta. */}
+                  <Box sx={{
+                    flex: 1, height: "1px", bgcolor: cores.fundo3,
+                    transformOrigin: "left",
+                    transform: aberto ? "scaleX(1)" : "scaleX(0.35)",
+                    opacity: aberto ? 1 : 0.5,
+                    transition: `transform ${TEMPO.painel}ms ${CURVA.painel}, opacity ${TEMPO.painel}ms ${CURVA.painel}`
+                  }} />
                 </Stack>
               </AccordionSummary>
               <AccordionDetails sx={{ px: 0 }}>
                 <Stack component="ul" spacing={0.8} sx={{ listStyle: "none", m: 0, p: 0 }}>
-                  {doGrupo.map((s) => <Linha key={s.id} s={s} />)}
+                  {doGrupo.map((s, i) => <Linha key={s.id} s={s} aberto={aberto} ordem={i} />)}
                 </Stack>
               </AccordionDetails>
             </Accordion>
