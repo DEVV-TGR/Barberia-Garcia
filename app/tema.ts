@@ -51,6 +51,9 @@ const tema = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         "html, body": { overflowX: "clip" },
+        /* Saltar para uma âncora não pode deixar o título debaixo do
+           cabeçalho fixo: 54px de cabeçalho mais folga. */
+        "[id]": { scrollMarginTop: "88px" },
         // Grão sobre tudo, para as superfícies grandes não ficarem lisas demais
         "body::after": {
           content: '""',
@@ -77,13 +80,22 @@ const tema = createTheme({
           "&:active": { transform: "translateY(0)" },
           transition: "background 200ms, color 200ms, border-color 200ms, transform 200ms"
         },
-        sizeSmall: { padding: "0.5rem 1.15rem", fontSize: 13 }
+        // 44px é o alvo de toque mínimo recomendado: os pequenos não descem daí
+        sizeSmall: { padding: "0.6rem 1.15rem", fontSize: 13, minHeight: 44 },
+        // O `large` do MUI subia a letra para 17px e inflava o botão até 57px
+        sizeLarge: { padding: "0.85rem 1.8rem", fontSize: 15 }
       },
       // Desactivado tem de continuar a ler-se: 5.0:1, não uma opacidade cega
       variants: [
         {
           props: { variant: "contained" as const },
-          style: { "&.Mui-disabled": { background: cores.fundo3, color: cores.texto2 } }
+          style: {
+            // Sem esta borda invisível, um preenchido ao lado de um de
+            // contorno fica 4px mais baixo — a borda do outro conta na caixa.
+            borderStyle: "solid",
+            borderColor: "transparent",
+            "&.Mui-disabled": { background: cores.fundo3, color: cores.texto2 }
+          }
         },
         {
           props: { variant: "outlined" as const },

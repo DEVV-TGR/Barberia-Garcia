@@ -68,7 +68,7 @@ não é segurança — separa o painel do site público, nada mais.
 
 ```bash
 npm test           # 58 testes: motor de marcações e contraste da paleta
-npm run test:e2e   # 30 testes em Chromium (faz build e arranca o servidor)
+npm run test:e2e   # 39 testes × 2 motores (Chromium e WebKit/iPhone)
 ```
 
 O `e2e` cobre o percurso completo de marcação, a ligação directa por serviço, a
@@ -76,6 +76,16 @@ faixa de acção, os grupos colapsáveis, o `.ics`, o painel com estados e filtr
 o menu em cartão — e, em **sete resoluções dos 375px aos 2560px**, verifica que
 nada transborda e que **nenhum texto desce abaixo de 12px**. Esta última parte
 existe porque a versão anterior tinha rótulos a 8.6px, ilegíveis no telemóvel.
+
+Corre em **dois motores**: Chromium e WebKit em viewport de iPhone. O WebKit é o
+motor do Safari, e foi lá que apareceram problemas que os testes só em Chromium
+não apanhavam — cabeçalho translúcido a deixar ler o que passava por baixo,
+cartões altos demais, selos cortados. Há um bloco de testes dedicado a isso.
+
+Outro bloco trava a escala no telemóvel: a página inicial não pode passar de
+10 500 px, nenhuma fotografia pode passar de 320 px de altura e nenhum botão pode
+ficar abaixo dos 44 px de alvo de toque. A página chegou a ter 11 601 px — quase
+14 ecrãs de scroll — porque cada fotografia ocupava 467 px numa coluna só.
 
 ## Estrutura
 

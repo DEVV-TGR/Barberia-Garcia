@@ -9,7 +9,7 @@ import { cores } from "@/app/design";
 
 export default function Equipa() {
   return (
-    <Box component="section" id="equipa" sx={{ py: { xs: 8, md: 12 } }}>
+    <Box component="section" id="equipa" sx={{ py: { xs: 6, md: 12 } }}>
       <Envolve>
         <Sobrescrita>Quem corta</Sobrescrita>
         <TituloSeccao destaque="um ofício">Três mãos,</TituloSeccao>
@@ -17,11 +17,12 @@ export default function Equipa() {
           Escolha o seu barbeiro na marcação — ou deixe-nos escolher por si.
         </Typography>
 
+        {/* Duas colunas já no telemóvel: numa coluna só, cada retrato ocupava
+            467px — 55% do ecrã — e a secção passava dos dois ecrãs. */}
         <Box sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
-          gap: 3, mt: 5,
-          maxWidth: { xs: "22rem", sm: "none" }
+          gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
+          gap: { xs: 1.5, md: 3 }, mt: { xs: 3.5, md: 5 }
         }}>
           {BARBEIROS.map((b, i) => (
             <Box component="article" key={b.id} sx={{ "&:hover img": { transform: "scale(1.04)" } }}>
@@ -46,14 +47,26 @@ export default function Equipa() {
                 }}>
                   0{i + 1}
                 </Typography>
-                <Box sx={{ position: "absolute", bottom: 20, left: 20, right: 20, zIndex: 2 }}>
-                  <Typography variant="h4" component="h3" sx={{ fontSize: "1.4rem" }}>{b.nome}</Typography>
-                  <Typography variant="overline" sx={{ color: "primary.main", display: "block", mt: 0.5 }}>
+                {/* Em coluna estreita só o nome fica sobre a foto: o cargo,
+                    com o espaçamento das maiúsculas, partia em três linhas e
+                    tapava metade do retrato. */}
+                <Box sx={{ position: "absolute", bottom: { xs: 12, md: 20 }, left: { xs: 12, md: 20 }, right: { xs: 12, md: 20 }, zIndex: 2 }}>
+                  <Typography variant="h4" component="h3" sx={{ fontSize: { xs: "1rem", md: "1.4rem" }, lineHeight: 1.1 }}>{b.nome}</Typography>
+                  <Typography variant="overline" sx={{
+                    color: "primary.main", mt: 0.5,
+                    display: { xs: "none", md: "block" }
+                  }}>
                     {b.papel}
                   </Typography>
                 </Box>
               </Box>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>{b.bio}</Typography>
+              <Typography variant="overline" sx={{
+                color: "primary.main", mt: 1.2, letterSpacing: "0.14em",
+                display: { xs: "block", md: "none" }
+              }}>
+                {b.papel}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: { xs: 0.6, md: 1.5 } }}>{b.bio}</Typography>
             </Box>
           ))}
         </Box>

@@ -97,7 +97,13 @@ export default function PassoServico({ escolhido, aoEscolher }: {
                 sx={{
                   ...molduraEscolhida(escolhido === s.id),
                   p: 2, textAlign: "left", display: "grid", gap: 0.4,
-                  justifyItems: "start", alignContent: "start", height: "100%"
+                  // O ButtonBase traz justify-content: center. Com colunas
+                  // implícitas isso centrava a grelha inteira dentro do cartão,
+                  // e o conteúdo aparecia indentado em vez de encostado.
+                  justifyContent: "start",
+                  justifyItems: "start",
+                  alignContent: "start",
+                  width: "100%", height: "100%"
                 }}
               >
                 <Chip label="Mais pedido" size="small" color="primary" sx={{ height: 22 }} />

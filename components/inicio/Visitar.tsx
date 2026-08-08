@@ -29,7 +29,7 @@ function LinhaContacto({ rotulo, children }: { rotulo: string; children: React.R
 
 export default function Visitar() {
   return (
-    <Box component="section" id="visitar" sx={{ py: { xs: 8, md: 12 } }}>
+    <Box component="section" id="visitar" sx={{ py: { xs: 6, md: 12 } }}>
       <Envolve sx={{
         display: "grid",
         gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr" },

@@ -172,16 +172,18 @@ test.describe("painel", () => {
     await page.getByRole("button", { name: "Entrar" }).click();
     await expect(page.getByTestId("agenda")).toBeVisible();
 
-    // Navegar até ao dia da marcação
-    const hoje = new Date();
-    for (let i = 0; i < 40; i++) {
-      const texto = await page.getByTestId("agenda").textContent();
-      if (texto?.includes("Rui Pereira")) break;
-      await page.getByLabel("Dia seguinte").click();
-      await page.waitForTimeout(80);
-    }
+    // Ir directamente ao dia da marcação. Percorrer dia a dia com esperas
+    // fixas falhava de vez em quando com os testes em paralelo.
+    const diaMarcado = await page.evaluate(() => {
+      const bruto = localStorage.getItem("barbearia-garcia:marcacoes:v1") ?? "[]";
+      const minhas = (JSON.parse(bruto) as { minha: boolean; data: string }[]).filter((m) => m.minha);
+      return minhas.at(-1)?.data ?? "";
+    });
+    expect(diaMarcado, "marcação não ficou guardada").toBeTruthy();
     expect(numeroDia).toBeTruthy();
-    expect(hoje).toBeTruthy();
+
+    await page.locator('[data-campo="dia"]').fill(diaMarcado);
+    await page.waitForTimeout(300);
 
     const cartao = page.getByTestId("marcacao").filter({ hasText: "Rui Pereira" });
     await expect(cartao).toHaveCount(1);
@@ -305,4 +307,224 @@ test("sem erros na consola", async ({ page }) => {
     await page.waitForLoadState("networkidle");
   }
   expect(erros).toEqual([]);
+});
+
+/* ── Correcções de telemóvel ─────────────────────────────────────────────────
+   Cada um destes fixa um problema medido nas capturas do iPhone.
+   ------------------------------------------------------------------------ */
+
+test.describe("layout no telemóvel", () => {
+  test.use({ viewport: { width: 393, height: 852 } });
+
+  test("o cabeçalho é opaco quando rolado", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.evaluate(() => window.scrollTo(0, 900));
+
+    // Esperar pelo estado, não por um relógio: a transição do fundo demora
+    // 420ms e com os testes em paralelo um `waitForTimeout` fixo falha.
+    await expect.poll(async () =>
+      page.locator(".MuiAppBar-root").evaluate((e) => {
+        const fundo = getComputedStyle(e).backgroundColor;
+        return fundo.startsWith("rgba") ? parseFloat(fundo.split(",")[3]) : 1;
+      }),
+      { message: "o cabeçalho continua translúcido", timeout: 5000 }
+    ).toBe(1);
+  });
+
+  test("saltar para uma âncora não esconde o título", async ({ page }) => {
+    await page.goto("/#servicos");
+    await page.waitForTimeout(1000);
+
+    const medida = await page.evaluate(() => {
+      const cab = document.querySelector(".MuiAppBar-root")!.getBoundingClientRect();
+      const titulo = document.querySelector("#servicos h2")!.getBoundingClientRect();
+      return { fundoCabecalho: cab.bottom, topoTitulo: titulo.top };
+    });
+    expect(medida.topoTitulo, "título por baixo do cabeçalho")
+      .toBeGreaterThanOrEqual(medida.fundoCabecalho);
+  });
+
+  test("os cartões de serviço são compactos", async ({ page }) => {
+    await page.goto("/#servicos");
+    await page.waitForTimeout(800);
+    const altura = await page.locator("[data-servico-linha]").first()
+      .evaluate((e) => e.getBoundingClientRect().height);
+    expect(altura, "cartão de serviço alto demais").toBeLessThan(120);
+  });
+
+  test("os cartões do painel são compactos", async ({ page }) => {
+    await page.goto("/painel");
+    await page.locator('[data-campo="pin"]').fill("1997");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await page.getByRole("button", { name: /Carregar agenda/ }).click();
+    await page.waitForTimeout(800);
+
+    const cartoes = page.getByTestId("marcacao");
+    if (await cartoes.count() === 0) return; // domingo: nada agendado
+
+    const altura = await cartoes.first().evaluate((e) => e.getBoundingClientRect().height);
+    expect(altura, "cartão do painel alto demais").toBeLessThan(190);
+  });
+
+  test("os factos do hero ficam equilibrados", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForTimeout(800);
+    const linhas = await page.locator("dl").first().evaluate((dl) => {
+      const tops = [...dl.children].map((e) => Math.round(e.getBoundingClientRect().top));
+      const porLinha = new Map<number, number>();
+      tops.forEach((t) => porLinha.set(t, (porLinha.get(t) ?? 0) + 1));
+      return [...porLinha.values()];
+    });
+    expect(linhas.length, "mais de duas linhas de factos").toBeLessThanOrEqual(2);
+    // 2+2, não 3+1
+    expect(Math.max(...linhas) - Math.min(...linhas), "linhas desequilibradas").toBeLessThanOrEqual(1);
+  });
+});
+
+test.describe("painel no telemóvel", () => {
+  test.use({ viewport: { width: 393, height: 852 } });
+
+  test("o selo de estado não fica cortado", async ({ page }) => {
+    await page.goto("/painel");
+    await page.locator('[data-campo="pin"]').fill("1997");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await page.getByRole("button", { name: /Carregar agenda/ }).click();
+    await page.waitForTimeout(800);
+
+    const selos = page.locator("[data-selo]");
+    if (await selos.count() === 0) return; // domingo
+
+    const corte = await selos.first().evaluate((e) => {
+      const rotulo = e.querySelector(".MuiChip-label") as HTMLElement;
+      return { visivel: rotulo.scrollWidth <= rotulo.clientWidth + 1, texto: rotulo.textContent };
+    });
+    expect(corte.visivel, `selo truncado: "${corte.texto}"`).toBe(true);
+  });
+});
+
+/* ── Escala no telemóvel ─────────────────────────────────────────────────────
+   A página inicial tinha 11 601px — 13,6 ecrãs — porque cada fotografia
+   ocupava 467px numa coluna só. Estes limites impedem que volte a inchar.
+   ------------------------------------------------------------------------ */
+
+test.describe("escala no telemóvel", () => {
+  test.use({ viewport: { width: 393, height: 852 } });
+
+  test("a página inicial não é um scroll interminável", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(600);
+
+    const altura = await page.evaluate(() => document.documentElement.scrollHeight);
+    const ecras = altura / 852;
+    expect(altura, `${ecras.toFixed(1)} ecrãs de scroll`).toBeLessThan(10_500);
+  });
+
+  test("as fotografias não dominam o ecrã", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(800);
+
+    const grandes = await page.evaluate(() => {
+      const fora: string[] = [];
+      document.querySelectorAll("#equipa article > div, figure").forEach((el) => {
+        const h = el.getBoundingClientRect().height;
+        if (h > 320) fora.push(`${el.tagName} ${Math.round(h)}px`);
+      });
+      return fora;
+    });
+    expect(grandes, "fotografias altas demais").toEqual([]);
+  });
+
+  test("todos os botões respeitam o alvo de toque", async ({ page }) => {
+    for (const caminho of ["/", "/marcar"]) {
+      await page.goto(caminho);
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(600);
+
+      const pequenos = await page.evaluate(() => {
+        const fora: string[] = [];
+        document.querySelectorAll("a.MuiButton-root, button.MuiButton-root").forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.height > 0 && r.height < 44) {
+            fora.push(`"${el.textContent?.trim().slice(0, 16)}" ${Math.round(r.height)}px`);
+          }
+        });
+        return fora;
+      });
+      expect(pequenos, `botões abaixo de 44px em ${caminho}`).toEqual([]);
+    }
+  });
+});
+
+
+test.describe("botões do hero", () => {
+  for (const [nome, largura, altura] of [["telemóvel", 393, 852], ["desktop", 1440, 900]] as const) {
+    test(`ficam alinhados em ${nome}`, async ({ page }) => {
+      await page.setViewportSize({ width: largura, height: altura });
+      await page.goto("/");
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(600);
+
+      const botoes = await page.evaluate(() => {
+        const hero = document.querySelector("section")!;
+        return [...hero.querySelectorAll("a.MuiButton-root")].map((e) => {
+          const c = getComputedStyle(e);
+          const r = e.getBoundingClientRect();
+          return {
+            alto: +r.height.toFixed(1),
+            topo: Math.round(r.top),
+            variante: e.className.includes("outlined") ? "contorno" : "cheio",
+            corBorda: c.borderColor
+          };
+        });
+      });
+
+      expect(botoes).toHaveLength(2);
+      // A borda de 2px do botão de contorno deixava-o 4px mais alto que o cheio
+      expect(botoes[0].alto, "alturas diferentes").toBe(botoes[1].alto);
+      expect(botoes[0].topo, "não estão na mesma linha").toBe(botoes[1].topo);
+      expect(botoes[0].alto, "abaixo do alvo de toque").toBeGreaterThanOrEqual(44);
+      // Em meio ecrã o texto longo quebrava e inchava o botão até 77px
+      expect(botoes[0].alto, "inchado por quebra de texto").toBeLessThan(62);
+
+      // Ao igualar as alturas com uma borda transparente no `root`, o contorno
+      // do segundo botão desapareceu e ele ficou a parecer texto solto.
+      const contorno = botoes.find((b) => b.variante === "contorno")!;
+      expect(contorno.corBorda, "botão de contorno sem contorno")
+        .not.toMatch(/rgba?\([^)]*,\s*0\)$/);
+    });
+  }
+});
+
+test("o conteúdo dos cartões encosta à esquerda", async ({ page }) => {
+  await page.goto("/marcar");
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(600);
+
+  const medir = () => page.evaluate(() => {
+    const fora: string[] = [];
+    document.querySelectorAll("[data-atalho], [data-servico], [data-barbeiro]").forEach((el) => {
+      const r = el.getBoundingClientRect();
+      const primeiro = el.firstElementChild;
+      if (!primeiro || r.width === 0) return;
+      const cs = getComputedStyle(el);
+      const recuo = primeiro.getBoundingClientRect().left - r.left;
+      const esperado = parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
+      // O ButtonBase traz justify-content: center; com colunas implícitas isso
+      // centrava a grelha e o conteúdo aparecia indentado dentro do cartão.
+      if (Math.abs(recuo - esperado) > 1.5) {
+        fora.push(`${el.tagName} recuo ${recuo.toFixed(0)}px, esperado ${esperado.toFixed(0)}px`);
+      }
+    });
+    return fora;
+  });
+
+  expect(await medir(), "conteúdo centrado no passo do serviço").toEqual([]);
+
+  await page.locator("[data-atalho]").first().click();
+  await page.getByRole("button", { name: "Avançar" }).click();
+  await page.waitForTimeout(600);
+  expect(await medir(), "conteúdo centrado no passo do barbeiro").toEqual([]);
 });

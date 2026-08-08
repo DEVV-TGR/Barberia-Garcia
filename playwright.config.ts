@@ -9,7 +9,12 @@ export default defineConfig({
     baseURL: "http://localhost:3100",
     trace: "retain-on-failure"
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    // Os problemas de layout apareceram no Safari do iPhone e os testes só
+    // corriam em Chromium — foi a lacuna que os deixou passar.
+    { name: "safari-iphone", use: { ...devices["iPhone 14"] } }
+  ],
   webServer: {
     command: "npm run build && npx next start -p 3100",
     url: "http://localhost:3100",

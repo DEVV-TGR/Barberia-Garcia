@@ -9,7 +9,7 @@ import { cores } from "@/app/design";
 
 export default function Galeria() {
   return (
-    <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "background.paper" }}>
+    <Box component="section" sx={{ py: { xs: 6, md: 12 }, bgcolor: "background.paper" }}>
       <Envolve>
         <Sobrescrita>Por dentro</Sobrescrita>
         <TituloSeccao destaque="salão">O</TituloSeccao>
@@ -17,16 +17,18 @@ export default function Galeria() {
         {/* Mosaico por colunas: das cinco fotos da casa uma é paisagem e quatro
             são retrato. Uma grelha de altura fixa cortava-as a meio. */}
         <Box sx={{
-          columnCount: { xs: 1, sm: 2, md: 3 },
-          columnGap: "1rem",
-          mt: 5
+          /* Duas colunas já no telemóvel: numa coluna só, as cinco fotos
+             faziam 3,3 ecrãs de scroll. */
+          columnCount: { xs: 2, md: 3 },
+          columnGap: { xs: "0.6rem", md: "1rem" },
+          mt: { xs: 3.5, md: 5 }
         }}>
           {GALERIA.map((g) => (
             <Box
               component="figure"
               key={g.src}
               sx={{
-                m: 0, mb: 2, borderRadius: "14px", overflow: "hidden",
+                m: 0, mb: { xs: 1.2, md: 2 }, borderRadius: "14px", overflow: "hidden",
                 breakInside: "avoid", position: "relative", bgcolor: cores.fundo3,
                 "&:hover img": { transform: "scale(1.04)" },
                 "&:hover figcaption": { opacity: 1, transform: "none" }
