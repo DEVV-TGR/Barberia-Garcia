@@ -24,6 +24,7 @@ import { useMarcacoes, useCliente } from "@/lib/useMarcacoes";
 import type { Marcacao } from "@/lib/dados";
 import { euros, duracao } from "@/lib/formatar";
 import { cores } from "@/app/design";
+import { CURVA, TEMPO } from "@/lib/movimento";
 
 const PASSOS = ["Serviço", "Barbeiro", "Dia e hora", "Os seus dados"];
 
@@ -166,7 +167,10 @@ export default function Assistente() {
           ) : feita && servico ? (
             <Confirmacao marcacao={feita} servico={servico} aoRecomecar={recomecar} />
           ) : (
-            <>
+            /* A chave por passo é o que faz o conteúdo entrar de novo a cada
+               avanço; sem ela, o React troca os filhos por baixo e a mudança de
+               passo lê-se como um estalo. */
+            <Box key={passo} sx={{ animation: `paginaEntra ${TEMPO.medio}ms ${CURVA.entrada} both` }}>
               {passo === 0 && (
                 <PassoServico escolhido={servicoId} aoEscolher={escolherServico} />
               )}
@@ -189,7 +193,7 @@ export default function Assistente() {
                   servico={servico} barbeiroId={barbeiroId} data={data} inicio={inicio}
                 />
               )}
-            </>
+            </Box>
           )}
         </Paper>
 

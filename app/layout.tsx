@@ -6,6 +6,7 @@ import tema from "./tema";
 import { corpoFonte } from "./design";
 import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
+import TransicaoPagina from "@/components/TransicaoPagina";
 import { CASA } from "@/lib/dados";
 
 export const metadata: Metadata = {
@@ -32,11 +33,23 @@ export default function LayoutRaiz({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-PT" className={corpoFonte.className} suppressHydrationWarning>
       <body>
+        {/* Sem JavaScript não há quem tire o loader do caminho nem quem revele
+            as secções: o site tem de continuar a ler-se à mesma. */}
+        <noscript>
+          <style>{
+            "[data-carregamento]{display:none!important}" +
+            "[data-revela]{opacity:1!important;transform:none!important}" +
+            "[data-pagina]{animation:none!important}"
+          }</style>
+        </noscript>
+
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={tema}>
             <CssBaseline />
             <Cabecalho />
-            <main id="principal">{children}</main>
+            <main id="principal">
+              <TransicaoPagina>{children}</TransicaoPagina>
+            </main>
             <Rodape />
           </ThemeProvider>
         </AppRouterCacheProvider>

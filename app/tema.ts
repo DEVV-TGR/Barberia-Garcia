@@ -8,9 +8,32 @@
 
 import { createTheme } from "@mui/material/styles";
 import { cores, corpoFonte, tituloFonte, TEXTO_MINIMO as MINIMO } from "./design";
+import { CURVA, TEMPO } from "@/lib/movimento";
 
 const tema = createTheme({
   cssVariables: true,
+
+  /* As curvas do MUI são as do Material. Substituídas pelas da casa, para que
+     tudo o que o MUI anima por dentro (Collapse, Dialog, Fade) use o mesmo
+     movimento que o resto do site. */
+  transitions: {
+    easing: {
+      easeInOut: CURVA.suave,
+      easeOut: CURVA.entrada,
+      easeIn: CURVA.saida,
+      sharp: CURVA.painel
+    },
+    duration: {
+      shortest: 140,
+      shorter: TEMPO.micro,
+      short: TEMPO.curto,
+      standard: 300,
+      complex: TEMPO.medio,
+      enteringScreen: TEMPO.curto,
+      leavingScreen: 200
+    }
+  },
+
   palette: {
     mode: "dark",
     primary:   { main: cores.acento, light: cores.acento2, dark: cores.acento3, contrastText: cores.fundo },
@@ -51,6 +74,46 @@ const tema = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         "html, body": { overflowX: "clip" },
+
+        /* Os keyframes vivem aqui e não em cada componente: assim são
+           declarados uma vez e qualquer parte do site lhes pode chamar o nome. */
+        "@keyframes girar": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" }
+        },
+        "@keyframes pulsar": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.045)" }
+        },
+        "@keyframes respirar": {
+          "0%, 100%": { opacity: 0.55, transform: "scale(0.94)" },
+          "50%": { opacity: 1, transform: "scale(1.06)" }
+        },
+        "@keyframes emblemaEntra": {
+          from: { opacity: 0, transform: "scale(0.86)" },
+          to: { opacity: 1, transform: "scale(1)" }
+        },
+        "@keyframes paginaEntra": {
+          from: { opacity: 0, transform: "translate3d(0, 14px, 0)" },
+          to: { opacity: 1, transform: "none" }
+        },
+        "@keyframes linhaEntra": {
+          from: { opacity: 0, transform: "translate3d(0, 10px, 0)" },
+          to: { opacity: 1, transform: "none" }
+        },
+
+        /* Quem pede menos movimento leva o site inteiro sem ele — incluindo o
+           que o MUI anima por dentro. O loader continua a funcionar; apenas
+           deixa de girar. */
+        "@media (prefers-reduced-motion: reduce)": {
+          "*, *::before, *::after": {
+            animationDuration: "0.01ms !important",
+            animationIterationCount: "1 !important",
+            transitionDuration: "0.01ms !important",
+            scrollBehavior: "auto !important"
+          }
+        },
+
         /* Saltar para uma âncora não pode deixar o título debaixo do
            cabeçalho fixo: 54px de cabeçalho mais folga. */
         "[id]": { scrollMarginTop: "88px" },
@@ -113,7 +176,10 @@ const tema = createTheme({
 
     MuiChip: {
       styleOverrides: {
-        root: { borderRadius: 999, fontWeight: 700, letterSpacing: "0.1em" },
+        root: {
+          borderRadius: 999, fontWeight: 700, letterSpacing: "0.1em",
+          transition: `background-color ${TEMPO.curto}ms ${CURVA.suave}, color ${TEMPO.curto}ms ${CURVA.suave}, transform ${TEMPO.curto}ms ${CURVA.suave}`
+        },
         label: { fontSize: MINIMO + 1 }
       }
     },
@@ -130,9 +196,43 @@ const tema = createTheme({
     },
 
     MuiTooltip: { styleOverrides: { tooltip: { fontSize: MINIMO + 1 } } },
+
     MuiAccordion: {
-      defaultProps: { disableGutters: true },
-      styleOverrides: { root: { background: "transparent", "&:before": { display: "none" } } }
+      defaultProps: {
+        disableGutters: true,
+        // Conteúdo sempre montado: desmontado, o primeiro fecho parte de altura
+        // zero e a animação salta. Quem precisar de outra duração dá-a no sítio.
+        slotProps: { transition: { timeout: TEMPO.painel, unmountOnExit: false } }
+      },
+      styleOverrides: {
+        root: {
+          background: "transparent",
+          "&:before": { display: "none" },
+          // O MUI anima a margem com a curva dele; esta acompanha o painel
+          transition: `margin ${TEMPO.painel}ms ${CURVA.painel}`
+        }
+      }
+    },
+
+    MuiAccordionSummary: {
+      styleOverrides: {
+        root: {
+          transition: `opacity ${TEMPO.curto}ms ${CURVA.suave}`,
+          "&:hover .MuiAccordionSummary-expandIconWrapper": { opacity: 1 }
+        },
+        content: { transition: `margin ${TEMPO.painel}ms ${CURVA.painel}` },
+        expandIconWrapper: {
+          opacity: 0.75,
+          // Meia volta em vez do 180° seco do MUI, na curva do painel
+          transition: `transform ${TEMPO.painel}ms ${CURVA.painel}, opacity ${TEMPO.curto}ms ${CURVA.suave}`
+        }
+      }
+    },
+
+    MuiIconButton: {
+      styleOverrides: {
+        root: { transition: `background-color ${TEMPO.curto}ms ${CURVA.suave}, color ${TEMPO.curto}ms ${CURVA.suave}, transform ${TEMPO.curto}ms ${CURVA.suave}` }
+      }
     }
   }
 });
